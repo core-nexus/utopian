@@ -1,17 +1,50 @@
 {
   "name": "utopian",
   "version": "0.1.0",
-  "description": "",
-  "scripts": {
+  "description": "LangGraph client and topic utilities for research workflows",
+  "keywords": [
+    "langgraph",
+    "ai",
+    "typescript"
+  ],
+  "homepage": "https://github.com/core-nexus/utopian#readme",
+  "bugs": {
+    "url": "https://github.com/core-nexus/utopian/issues"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/core-nexus/utopian.git"
+  },
+  "license": "Apache-2.0",
+  "author": "Harlan T Wood",
   "type": "module",
+  "main": "src/langgraph-client.ts",
+  "bin": {
+    "utopian-langgraph": "src/langgraph-client.ts",
+    "utopian-topic": "src/topic-reader.ts"
+  },
+  "files": [
+    "src/**/*.ts",
+    "README.md",
+    "AGENTS.md"
+  ],
+  "scripts": {
+    "check-version": "npm view utopian version",
+    "prepublishOnly": "echo 'Running pre-publish checks...'",
+    "publish:dry": "npm publish --dry-run",
+    "republish": "npm version patch && npm publish",
+    "republish:major": "npm version major && npm publish",
+    "republish:minor": "npm version minor && npm publish",
+    "sort": "sort-package-json"
+  },
   "dependencies": {
     "tsx": "^4.7.0"
   },
   "devDependencies": {
+    "sort-package-json": "^3.4.0",
     "@types/node": "^24.3.0"
   },
-  "author": "",
-  "license": "Apache-2.0"
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
