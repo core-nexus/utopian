@@ -1,0 +1,17 @@
+{
+  "name": "utopian",
+  "version": "0.1.0",
+  "description": "",
+  "scripts": {
+  },
+  "keywords": [],
+  "type": "module",
+  "dependencies": {
+    "tsx": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0"
+  },
+  "author": "",
+  "license": "Apache-2.0"
+}
