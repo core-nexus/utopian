@@ -1,7 +1,7 @@
 {
   "name": "utopian",
   "version": "0.1.2",
-  "description": "LangGraph client and topic utilities for research workflows",
+  "description": "",
   "keywords": [
     "langgraph",
     "ai",
@@ -18,31 +18,35 @@
   "license": "Apache-2.0",
   "author": "Harlan T Wood",
   "type": "module",
-  "main": "src/langgraph-client.ts",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "bin": {
-    "utopian-langgraph": "src/langgraph-client.ts",
-    "utopian-topic": "src/topic-reader.ts"
+    "utopian": "dist/cli.mjs"
   },
   "files": [
-    "src/**/*.ts",
+    "dist",
     "README.md",
     "AGENTS.md"
   ],
   "scripts": {
-    "check-version": "npm view utopian version",
-    "prepublishOnly": "echo 'Running pre-publish checks...'",
-    "publish:dry": "npm publish --dry-run",
-    "republish": "npm version patch && npm publish",
-    "republish:major": "npm version major && npm publish",
-    "republish:minor": "npm version minor && npm publish",
+    "build": "tsup",
+    "check-version": "pnpm view utopian version",
+    "prepare": "pnpm run build",
+    "prepublishOnly": "pnpm run build",
+    "publish:dry": "pnpm publish --dry-run",
+    "republish": "pnpm version patch && pnpm publish",
+    "republish:major": "pnpm version major && pnpm publish",
+    "republish:minor": "pnpm version minor && pnpm publish",
     "sort": "sort-package-json"
   },
   "dependencies": {
     "tsx": "^4.7.0"
   },
   "devDependencies": {
+    "@types/node": "^24.3.0",
     "sort-package-json": "^3.4.0",
-    "@types/node": "^24.3.0"
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
   },
   "engines": {
     "node": ">=18.0.0"
