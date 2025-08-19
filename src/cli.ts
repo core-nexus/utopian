@@ -1,7 +1,7 @@
 
 function main(argv: string[]) {
 
-  console.log('LangGraph Client CLI');
+  console.log('Utopian CLI!');
 
 }
 
