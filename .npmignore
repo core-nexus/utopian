@@ -8,6 +8,7 @@ __tests__/
 .git/
 .gitignore
 .idea/
+.utopia/
 .vscode/
 *.log
 *.map
@@ -21,15 +22,18 @@ __tests__/
 *~
 build/
 coverage/
-dist/
 docs/
+foundations/
+goals/
 node_modules/
 npm-debug.log*
+reports/
 src/
 temp/
 test/
 tests/
 Thumbs.db
 tmp/
+trust/
 yarn-debug.log*
 yarn-error.log*

@@ -21,7 +21,7 @@
   "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "bin": {
-    "utopian": "dist/cli.mjs"
+    "utopian": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -31,19 +31,29 @@
   "scripts": {
     "build": "tsup",
     "check-version": "pnpm view utopian version",
+    "dev": "tsx src/cli.ts",
+    "fmt": "prettier -w .",
     "prepare": "pnpm run build",
     "prepublishOnly": "pnpm run build",
     "publish:dry": "pnpm publish --dry-run",
     "republish": "pnpm version patch && pnpm publish",
     "republish:major": "pnpm version major && pnpm publish",
     "republish:minor": "pnpm version minor && pnpm publish",
+    "slides": "marp slides/*.md -o dist --allow-local-files",
     "sort": "sort-package-json"
   },
   "dependencies": {
-    "tsx": "^4.7.0"
+    "@ai-sdk/openai": "^2.0.15",
+    "ai": "^5.0.15",
+    "commander": "^14.0.0",
+    "tsx": "^4.7.0",
+    "yaml": "^2.8.1",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
+    "@marp-team/marp-cli": "^4.2.3",
     "@types/node": "^24.3.0",
+    "prettier": "^3.6.2",
     "sort-package-json": "^3.4.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2"

@@ -1,7 +1,7 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig([
-  // CLI build
+  // CLI build (ESM only, no shebang - npm handles it)
   {
     entry: ["src/cli.ts"],
     format: ["esm"],
@@ -9,22 +9,19 @@ export default defineConfig([
     sourcemap: true,
     clean: true,
     minify: false,
-    banner: { js: "#!/usr/bin/env node" },
-    outExtension() {
-      return { js: ".mjs" };
-    }
+    outExtension() { return { js: ".js" }; }
   },
-  // Library build
+  // Library build (both ESM and CJS)
   {
     entry: ["src/index.ts"],
-    format: ["esm"],
+    format: ["esm", "cjs"],
     target: "node18",
     sourcemap: true,
     clean: false,
-    dts: true,
+    dts: false, // Disable for now due to AI SDK typing complexity
     minify: false,
-    outExtension() {
-      return { js: ".mjs" };
+    outExtension({ format }) {
+      return { js: format === "esm" ? ".mjs" : ".js" };
     }
   }
 ]);

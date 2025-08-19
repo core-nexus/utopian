@@ -1,5 +1,10 @@
 .DS_Store
+.utopia/
 /dist/
+/foundations/
+/goals/
+/reports/
 /tmp/
+/trust/
 node_modules/
 venv/
