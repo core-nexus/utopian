@@ -15,16 +15,16 @@ export type AgentOptions = {
 
 export async function runSimpleAgent(opts: AgentOptions) {
   const cwd = opts.cwd;
-  const baseURL = opts.baseURL ?? "http://localhost:1234/v1";
-  const modelName = opts.model ?? "openai/gpt-oss-20b";
+  const baseURL = opts.baseURL ?? (process.env.OPENAI_API_KEY ? "https://api.openai.com/v1" : "http://localhost:1234/v1");
+  const modelName = opts.model ?? (process.env.OPENAI_API_KEY ? "gpt-5" : "openai/gpt-oss-20b");
 
-  const client = new SimpleOpenAIClient(baseURL, "lm-studio");
+  const client = new SimpleOpenAIClient(baseURL);
 
   // ---------- Initial context ----------
   const goals = await readText(path.join(cwd, "goals", "README.md"));
   const found = await readText(path.join(cwd, "foundations", "index.yaml"));
   const trust = await readText(path.join(cwd, "trust", "known_nodes.yaml"));
-  
+
   const contextSummary = [
     `Repo present: ${!!(goals || found || trust)}`,
     goals ? "- goals present" : "- goals missing",
@@ -47,7 +47,7 @@ ${contextSummary}
 
 Please create a plan to set up this Utopia node with the following structure:
 1. Create basic goals/README.md with project purpose
-2. Create foundations/index.yaml with core principles  
+2. Create foundations/index.yaml with core principles
 3. Create trust/known_nodes.yaml with initial trusted nodes
 4. Create a simple report in reports/utopia-report.md
 
@@ -62,7 +62,7 @@ Please provide the plan and I'll execute it.`
 
     // Create the basic structure based on the plan
     await createBasicStructure(cwd);
-    
+
     console.log("\n✅ Basic Utopia node structure created!");
     console.log("📁 Created directories: goals/, foundations/, trust/, reports/");
     console.log("📝 Created initial files with sensible defaults");
@@ -135,9 +135,9 @@ A decentralized, collaborative network where nodes work together to create posit
   const reportContent = `# Utopia Node Report
 
 ## Node Status
-**Status**: Initializing  
-**Created**: ${new Date().toISOString().split('T')[0]}  
-**Version**: 0.1.0  
+**Status**: Initializing
+**Created**: ${new Date().toISOString().split('T')[0]}
+**Version**: 0.1.0
 
 ## Overview
 This Utopia node has been successfully initialized with the basic structure and configuration.

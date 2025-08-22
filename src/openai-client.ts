@@ -16,7 +16,7 @@ export interface ChatCompletionResponse {
 export class SimpleOpenAIClient {
   constructor(
     private baseURL: string = "http://localhost:1234/v1",
-    private apiKey: string = "lm-studio"
+    private apiKey: string = process.env.OPENAI_API_KEY || "lm-studio"
   ) {}
 
   async chat(messages: ChatMessage[], model: string = "openai/gpt-oss-20b"): Promise<string> {
