@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { runSimpleAgent } from "./simple-agent.js";
+
+const execAsync = promisify(exec);
 
 const program = new Command()
   .name("utopian")
@@ -14,12 +18,26 @@ const program = new Command()
 
 const opts = program.opts();
 
-runSimpleAgent({
-  cwd: process.cwd(),
-  baseURL: opts.base,
-  model: opts.model,
-  auto: !!opts.auto
-}).catch(err => {
+async function main() {
+  // Auto-start LM Studio if no OpenAI API key and using localhost
+  if (!process.env.OPENAI_API_KEY && opts.base.includes("localhost:1234")) {
+    try {
+      console.log("🚀 Starting LM Studio server...");
+      await execAsync("lms server start && lms status");
+    } catch (error) {
+      console.log("⚠️  Could not start LM Studio (continuing anyway)");
+    }
+  }
+
+  await runSimpleAgent({
+    cwd: process.cwd(),
+    baseURL: opts.base,
+    model: opts.model,
+    auto: !!opts.auto
+  });
+}
+
+main().catch(err => {
   console.error("❌ utopian error:", err);
   process.exit(1);
 });
