@@ -2,7 +2,7 @@
 
 **A powerful CLI for creating and managing decentralized Utopia nodes that tackle global challenges through AI-powered collaboration.**
 
-[![npm version](https://img.shields.io/npm/v/eutopia-agent.svg)](https://www.npmjs.com/package/eutopia-agent)
+[![npm version](https://img.shields.io/npm/v/utopian.svg)](https://www.npmjs.com/package/utopian)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
@@ -71,7 +71,7 @@ Utopian creates **decentralized nodes** that collaborate to address global chall
 
 ### Global Installation
 ```bash
-npm install -g eutopia-agent
+npm install -g utopian
 ```
 
 ### Direct Usage (Recommended)

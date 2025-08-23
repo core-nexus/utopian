@@ -1,5 +1,5 @@
 {
-  "name": "eutopia-agent",
+  "name": "utopian",
   "version": "0.1.10",
   "description": "",
   "keywords": [
@@ -21,7 +21,7 @@
   "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "bin": {
-    "eutopia-agent": "dist/cli.js"
+    "utopian": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "check-version": "pnpm view eutopia-agent version",
+    "check-version": "pnpm view utopian version",
     "dev": "tsx src/cli.ts",
     "lint": "eslint \"src/**/*.{js,ts}\" --fix",
     "lint:check": "eslint \"src/**/*.{js,ts}\"",
