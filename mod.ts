@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read=. --allow-write=. --allow-net=api.openai.com,localhost:1234 --allow-run=lms
+#!/usr/bin/env -S deno run --allow-read=. --allow-write=. --allow-net=api.openai.com,localhost:1234 --allow-run=lms --allow-env
 /**
  * Deno entry point for utopian with explicit security permissions
  * Network access: Only api.openai.com and localhost:1234
@@ -7,6 +7,40 @@
  */
 
 import { parse } from "https://deno.land/std@0.224.0/flags/mod.ts";
+
+/**
+ * Check if LM Studio is available by testing if the lms command exists
+ * and if the server is responsive on localhost:1234
+ */
+async function checkLMStudioAvailable(): Promise<boolean> {
+  try {
+    // First check if lms command exists
+    const lmsCmd = new Deno.Command('lms', {
+      args: ['--version'],
+      stdout: 'piped',
+      stderr: 'piped',
+    });
+    const { code } = await lmsCmd.output();
+    
+    if (code !== 0) {
+      return false;
+    }
+    
+    // Check if LM Studio server is running on localhost:1234
+    try {
+      const response = await fetch('http://localhost:1234/v1/models', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      return response.ok;
+    } catch {
+      // Server not running, but lms command exists - we can try to start it
+      return true;
+    }
+  } catch {
+    return false;
+  }
+}
 
 interface UtopianOptions {
   base: string;
@@ -50,15 +84,33 @@ async function main() {
     string: ['base', 'model'],
     boolean: ['auto', 'help'],
     default: {
-      base: Deno.env.get('OPENAI_API_KEY')
-        ? 'https://api.openai.com/v1'
-        : Deno.env.get('LMSTUDIO_BASE_URL') || 'http://localhost:1234/v1',
-      model: Deno.env.get('OPENAI_API_KEY') 
-        ? 'gpt-5' 
-        : Deno.env.get('LMSTUDIO_MODEL') || 'openai/gpt-oss-20b',
       auto: false,
     },
   });
+  
+  // Determine base URL and model by checking LM Studio availability first
+  const lmStudioAvailable = await checkLMStudioAvailable();
+  
+  // Set defaults based on LM Studio availability, prioritizing LM Studio
+  if (!args.base) {
+    if (lmStudioAvailable) {
+      args.base = Deno.env.get('LMSTUDIO_BASE_URL') || 'http://localhost:1234/v1';
+    } else if (Deno.env.get('OPENAI_API_KEY')) {
+      args.base = 'https://api.openai.com/v1';
+    } else {
+      args.base = 'http://localhost:1234/v1'; // Default fallback
+    }
+  }
+  
+  if (!args.model) {
+    if (lmStudioAvailable) {
+      args.model = Deno.env.get('LMSTUDIO_MODEL') || 'openai/gpt-oss-20b';
+    } else if (Deno.env.get('OPENAI_API_KEY')) {
+      args.model = 'gpt-5';
+    } else {
+      args.model = 'openai/gpt-oss-20b'; // Default fallback
+    }
+  }
 
   if (args.help) {
     console.log(`
@@ -80,8 +132,8 @@ Security Features:
     return;
   }
 
-  // Auto-start LM Studio if no OpenAI API key and using localhost
-  if (!Deno.env.get('OPENAI_API_KEY') && args.base.includes('localhost:1234')) {
+  // Auto-start LM Studio if using localhost (prioritize LM Studio)
+  if (args.base.includes('localhost:1234')) {
     try {
       console.log('🚀 Starting LM Studio server...');
       const cmd = new Deno.Command('lms', {
@@ -106,7 +158,7 @@ Security Features:
 
   await runSimpleAgent({
     cwd: Deno.cwd(),
-    baseURL: args.base,
+    base: args.base,
     model: args.model,
     auto: args.auto,
   });
