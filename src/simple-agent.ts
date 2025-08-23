@@ -296,7 +296,7 @@ ${topic.description}
 # Why This Matters Now
 
 - **Urgent Action Required**: Time-sensitive global challenge
-- **Collective Impact**: Requires coordinated worldwide effort  
+- **Collective Impact**: Requires coordinated worldwide effort
 - **Proven Solutions**: We have the tools and knowledge to act
 - **Future at Stake**: Decisions made today shape tomorrow
 
@@ -353,15 +353,15 @@ ${new Date().toISOString().split('T')[0]}
     // Create video script outline
     const videoScriptContent = `# Video Script: ${topic.title}
 
-**Duration**: 5-7 minutes  
-**Target Audience**: General public, activists, organizations  
-**Tone**: Urgent but hopeful, actionable  
+**Duration**: 5-7 minutes
+**Target Audience**: General public, activists, organizations
+**Tone**: Urgent but hopeful, actionable
 
 ## Script Outline
 
 ### Opening Hook (0-30s)
 **Visual**: Compelling imagery related to the challenge
-**Narration**: 
+**Narration**:
 "In the next few minutes, you'll discover one of the most critical challenges facing our world today - and more importantly, what you can do about it right now."
 
 ### Problem Definition (30s-2m)
@@ -418,9 +418,9 @@ ${topic.title} - Because the future depends on what we do today."
     // Create initial report
     const reportContent = `# ${topic.title} - Status Report
 
-**Report Date**: ${new Date().toISOString().split('T')[0]}  
-**Status**: Topic Initialized  
-**Priority**: Critical  
+**Report Date**: ${new Date().toISOString().split('T')[0]}
+**Status**: Topic Initialized
+**Priority**: Critical
 
 ## Topic Overview
 ${topic.description}
@@ -516,7 +516,7 @@ async function generateResearchReports(
   for (const topicSlug of topicDirs.slice(0, 2)) {
     // Process 2 topics per cycle to avoid overwhelming
     const researchPrompt = `Generate a comprehensive research report for the ${topicSlug} topic. Include:
-    
+
 1. Current global statistics and data
 2. Key organizations and initiatives currently working on this
 3. Recent developments and breakthroughs (2023-2024)
@@ -550,9 +550,9 @@ Make it thorough, well-researched, and actionable. Focus on data-driven insights
       );
       const reportContent = `# Deep Research Report - ${topicSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
 
-**Report #**: ${iteration}  
-**Generated**: ${new Date().toISOString()}  
-**Focus**: Comprehensive analysis and actionable insights  
+**Report #**: ${iteration}
+**Generated**: ${new Date().toISOString()}
+**Focus**: Comprehensive analysis and actionable insights
 
 ${research}
 
@@ -625,7 +625,7 @@ async function discoverNewTopics(
   const discoveryPrompt = `Based on current global developments in 2024-2025, identify 2 emerging critical challenges that need urgent attention but aren't widely discussed yet. Consider:
 
 1. Technological disruptions and their societal impact
-2. Environmental tipping points and cascading effects  
+2. Environmental tipping points and cascading effects
 3. Social and economic vulnerabilities
 4. Geopolitical shifts affecting global cooperation
 5. Emerging health and education challenges
@@ -659,8 +659,8 @@ Format as JSON with topic details.`;
     const discoveryFile = path.join(discoveryDir, 'discovery.md');
     const discoveryContent = `# Emerging Topics Discovery - Cycle ${iteration}
 
-**Discovery Date**: ${new Date().toISOString()}  
-**Analysis Focus**: Emerging critical challenges requiring immediate attention  
+**Discovery Date**: ${new Date().toISOString()}
+**Analysis Focus**: Emerging critical challenges requiring immediate attention
 
 ${newTopics}
 
@@ -714,8 +714,8 @@ Focus on creating actionable insights that connect different challenge areas.`;
     const synthesisFile = path.join(cwd, 'reports', `synthesis-${Date.now()}.md`);
     const synthesisContent = `# Content Synthesis Report
 
-**Generated**: ${new Date().toISOString()}  
-**Purpose**: Cross-topic analysis and strategic insights  
+**Generated**: ${new Date().toISOString()}
+**Purpose**: Cross-topic analysis and strategic insights
 
 ${synthesis}
 
@@ -770,8 +770,8 @@ Make it inspiring, data-driven, and focused on concrete actions people can take 
     const mediaFile = path.join(cwd, 'media', `content-${iteration}-${Date.now()}.md`);
     const mediaContentFormatted = `# Media Content Package - Cycle ${iteration}
 
-**Generated**: ${new Date().toISOString()}  
-**Purpose**: High-impact presentations and video content  
+**Generated**: ${new Date().toISOString()}
+**Purpose**: High-impact presentations and video content
 
 ${mediaContent}
 
