@@ -1,5 +1,5 @@
 {
-  "name": "utopian",
+  "name": "eutopia",
   "version": "0.1.7",
   "description": "",
   "keywords": [
@@ -21,7 +21,7 @@
   "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "bin": {
-    "utopian": "dist/cli.js"
+    "eutopia": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "check-version": "pnpm view utopian version",
+    "check-version": "pnpm view eutopia version",
     "dev": "tsx src/cli.ts",
     "fmt": "prettier -w .",
     "prepare": "pnpm run build",

@@ -62,7 +62,7 @@ export async function runAgent(opts: AgentOptions) {
 
   const git = tool({
     description: "Run a safe git commit of changes",
-    parameters: z.object({ message: z.string().default("utopian update") }),
+    parameters: z.object({ message: z.string().default("eutopia update") }),
     execute: async ({ message }: { message: string }) => {
       await runCmd("git", ["add", "."], { cwd });
       try { await runCmd("git", ["commit", "-m", message], { cwd }); } catch { /* no changes */ }
@@ -140,7 +140,7 @@ ${bullets.map((b: string) => `- ${b}`).join("\n")}
     {
       role: "user",
       content:
-`Project root: ${cwd}
+        `Project root: ${cwd}
 
 Context:
 ${contextSummary}
