@@ -21,7 +21,7 @@
   "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "bin": {
-    "e-utopia": "dist/cli.js"
+    "eutopia-agent": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "check-version": "pnpm view e-utopia version",
+    "check-version": "pnpm view eutopia-agent version",
     "dev": "tsx src/cli.ts",
     "fmt": "prettier -w .",
     "prepare": "pnpm run build",

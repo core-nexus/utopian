@@ -7,7 +7,7 @@ import { runSimpleAgent } from "./simple-agent.js";
 const execAsync = promisify(exec);
 
 const program = new Command()
-  .name("e-utopia")
+  .name("eutopia-agent")
   .description("Utopia Node agent (local-first)")
   .option("--base <url>", "OpenAI-compatible base URL (default: https://api.openai.com/v1 if OPENAI_API_KEY set, else http://localhost:1234/v1)",
     process.env.OPENAI_API_KEY ? "https://api.openai.com/v1" : (process.env.LMSTUDIO_BASE_URL || "http://localhost:1234/v1"))
@@ -38,6 +38,6 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error("❌ e-utopia error:", err);
+  console.error("❌ eutopia-agent error:", err);
   process.exit(1);
 });
