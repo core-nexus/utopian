@@ -7,7 +7,7 @@ import { runSimpleAgent } from './simple-agent.js';
 const execAsync = promisify(exec);
 
 const program = new Command()
-  .name('eutopia-agent')
+  .name('utopian')
   .description('Utopia Node agent (local-first)')
   .option(
     '--base <url>',
@@ -46,6 +46,6 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error('❌ eutopia-agent error:', err);
+  console.error('❌ utopian error:', err);
   process.exit(1);
 });

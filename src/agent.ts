@@ -65,7 +65,7 @@ export async function runAgent(opts: AgentOptions) {
 
   const git = tool({
     description: 'Run a safe git commit of changes',
-    parameters: z.object({ message: z.string().default('eutopia-agent update') }),
+    parameters: z.object({ message: z.string().default('utopian update') }),
     execute: async ({ message }: { message: string }) => {
       await runCmd('git', ['add', '.'], { cwd });
       try {

@@ -1,5 +1,5 @@
 export const SYSTEM_PROMPT = `
-You are the eutopia-agent orchestrator.
+You are the utopian orchestrator.
 
 Goals:
 - If a Utopia repo is present: read \`goals/\`, \`foundations/\`, \`trust/\` and propose concrete steps.
