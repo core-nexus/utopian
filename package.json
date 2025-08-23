@@ -21,7 +21,7 @@
   "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "bin": {
-    "utopian": "bin/utopian.js"
+    "utopian": "bin/utopian.cjs"
   },
   "files": [
     "dist",
