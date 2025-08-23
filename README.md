@@ -51,7 +51,7 @@ Utopian creates **decentralized nodes** that collaborate to address global chall
 
 ### 🧠 **AI-Powered Content Generation**
 - **Research Reports**: Deep analysis of global challenges with statistics and solutions
-- **Trust Network Expansion**: Discovery of credible organizations and collaborators  
+- **Trust Network Expansion**: Discovery of credible organizations and collaborators
 - **Topic Discovery**: Identification of emerging critical challenges
 - **Media Creation**: Presentation slides (Marp-compatible) and video scripts
 - **Content Synthesis**: Cross-topic analysis and strategic insights
@@ -69,14 +69,9 @@ Utopian creates **decentralized nodes** that collaborate to address global chall
 
 ## 📦 Installation
 
-### Global Installation
-```bash
-npm install -g utopian
-```
-
 ### Direct Usage (Recommended)
 ```bash
-npx utopian
+npx utopian@latest
 ```
 
 ### Requirements
@@ -95,7 +90,7 @@ npx utopian
 # Use with specific AI model
 npx utopian --model gpt-4
 
-# Skip human-in-the-loop confirmations  
+# Skip human-in-the-loop confirmations
 npx utopian --auto
 
 # Use custom OpenAI-compatible endpoint
@@ -126,7 +121,7 @@ The CLI automatically selects the best available AI option:
 # OpenAI API (recommended for best results)
 OPENAI_API_KEY=your_openai_api_key
 
-# LM Studio (for local/private usage)  
+# LM Studio (for local/private usage)
 LMSTUDIO_BASE_URL=http://localhost:1234/v1
 LMSTUDIO_MODEL=your_preferred_model
 ```
@@ -168,20 +163,17 @@ utopia-node/
 
 ### Recommended Models
 
-**For Production:**
-- **GPT-4/GPT-5** (OpenAI): Best quality and reasoning
-- **Claude 3** (Anthropic): Excellent for research and analysis
+**For Local/Free:**
+- **GPT-OSS-20B**: Good balance of performance and resource usage
 
-**For Local/Private:**
-- **Qwen2.5** (32B+): Strong reasoning and content generation
-- **Llama 3.1** (70B+): Good general performance
-- **Mistral Large**: Efficient with good quality
+**For Production:**
+- **GPT-5** (OpenAI): Good quality and reasoning
+- **Claude 3** (Anthropic): Excellent for research and analysis
 
 ### Model Performance Tips
 
 - **Larger models** (70B+) produce better research and insights
 - **Local models** provide privacy and cost control
-- **OpenAI models** offer the most reliable performance
 - Use `--auto` flag for unattended operation with any model
 
 ## 🛠️ Development
@@ -230,7 +222,7 @@ We welcome contributions! Please see our [contribution guidelines](AGENTS.md) an
 ## 🌐 Related Projects
 
 - **[utopia-node](https://github.com/core-nexus/utopia-node)**: Reference implementation of a Utopia node
-- **[core-nexus](https://github.com/core-nexus)**: Core Utopia ecosystem projects
+- **[CoreNexus](https://core.nexus)**: Core Utopia ecosystem projects
 
 ## 📄 License
 
