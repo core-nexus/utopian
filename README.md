@@ -1,1 +1,3 @@
 # 🌍 Utopian
+
+npx utopian
