@@ -14,18 +14,18 @@ const { existsSync } = require('fs');
 const path = require('path');
 
 function checkDenoAvailable() {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const deno = spawn('deno', ['--version'], {
       stdio: 'pipe',
-      shell: true
+      shell: true,
     });
 
     let output = '';
-    deno.stdout.on('data', (data) => {
+    deno.stdout.on('data', data => {
       output += data.toString();
     });
 
-    deno.on('close', (code) => {
+    deno.on('close', code => {
       resolve(code === 0 && output.includes('deno'));
     });
 
@@ -80,15 +80,15 @@ async function runWithDeno(args) {
 
   const deno = spawn('deno', denoArgs, {
     stdio: 'inherit',
-    shell: true
+    shell: true,
   });
 
-  return new Promise((resolve) => {
-    deno.on('close', (code) => {
+  return new Promise(resolve => {
+    deno.on('close', code => {
       process.exit(code || 0);
     });
 
-    deno.on('error', (err) => {
+    deno.on('error', err => {
       console.error('❌ Error running Deno:', err.message);
       resolve(false);
     });
@@ -110,20 +110,19 @@ function runWithNode(args) {
 
   const node = spawn('node', [distPath, ...args], {
     stdio: 'inherit',
-    shell: true
+    shell: true,
   });
 
-  node.on('close', (code) => {
+  node.on('close', code => {
     process.exit(code || 0);
   });
 
-  node.on('error', (err) => {
+  node.on('error', err => {
     console.error('❌ Error running Node.js:', err.message);
     process.exit(1);
   });
 }
 
-console.log('🤖 Utopian AI Agent\n');
 async function main() {
   console.log('🤖 Utopian AI Agent\n');
   const args = process.argv.slice(2);

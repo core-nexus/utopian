@@ -6,7 +6,7 @@
  * Process execution: Only lms command
  */
 
-import { parse } from "https://deno.land/std@0.224.0/flags/mod.ts";
+import { parse } from 'https://deno.land/std@0.224.0/flags/mod.ts';
 
 /**
  * Check if LM Studio is available by testing if the lms command exists
@@ -21,11 +21,11 @@ async function checkLMStudioAvailable(): Promise<boolean> {
       stderr: 'piped',
     });
     const { code } = await lmsCmd.output();
-    
+
     if (code !== 0) {
       return false;
     }
-    
+
     // Check if LM Studio server is running on localhost:1234
     try {
       const response = await fetch('http://localhost:1234/v1/models', {
@@ -57,13 +57,13 @@ async function runSimpleAgent(options: UtopianOptions): Promise<void> {
   🌐 API base: ${options.base}
   🧠 Model: ${options.model}
   🚀 Auto mode: ${options.auto ? 'enabled' : 'disabled'}`);
-  
+
   // Simulate the agent work
   console.log('🔒 Running with Deno security sandbox:');
   console.log('  ✅ Network access restricted to API endpoints only');
   console.log('  ✅ File system access limited to current directory');
   console.log('  ✅ Process execution limited to lms command only');
-  
+
   // Check if we can access the working directory
   try {
     const entries = [];
@@ -75,7 +75,7 @@ async function runSimpleAgent(options: UtopianOptions): Promise<void> {
     console.error('❌ Cannot read working directory:', error.message);
     return;
   }
-  
+
   console.log('✨ Utopian agent completed successfully');
 }
 
@@ -87,10 +87,10 @@ async function main() {
       auto: false,
     },
   });
-  
+
   // Determine base URL and model by checking LM Studio availability first
   const lmStudioAvailable = await checkLMStudioAvailable();
-  
+
   // Set defaults based on LM Studio availability, prioritizing LM Studio
   if (!args.base) {
     if (lmStudioAvailable) {
@@ -101,7 +101,7 @@ async function main() {
       args.base = 'http://localhost:1234/v1'; // Default fallback
     }
   }
-  
+
   if (!args.model) {
     if (lmStudioAvailable) {
       args.model = Deno.env.get('LMSTUDIO_MODEL') || 'openai/gpt-oss-20b';
@@ -142,7 +142,7 @@ Security Features:
         stderr: 'piped',
       });
       const { code } = await cmd.output();
-      
+
       if (code === 0) {
         const statusCmd = new Deno.Command('lms', {
           args: ['status'],
