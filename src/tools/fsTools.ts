@@ -1,24 +1,31 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import YAML from "yaml";
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import YAML from 'yaml';
 
 export async function ensureDir(p: string) {
   await fs.mkdir(p, { recursive: true });
 }
 
 export async function readText(p: string) {
-  try { return await fs.readFile(p, "utf8"); } catch { return undefined; }
+  try {
+    return await fs.readFile(p, 'utf8');
+  } catch {
+    return undefined;
+  }
 }
 
 export async function writeText(p: string, content: string) {
   await ensureDir(path.dirname(p));
-  await fs.writeFile(p, content, "utf8");
+  await fs.writeFile(p, content, 'utf8');
   return p;
 }
 
 export async function listDir(p: string) {
-  try { return (await fs.readdir(p, { withFileTypes: true })).map(d => d.name); }
-  catch { return []; }
+  try {
+    return (await fs.readdir(p, { withFileTypes: true })).map(d => d.name);
+  } catch {
+    return [];
+  }
 }
 
 export async function readYaml<T = unknown>(p: string): Promise<T | undefined> {
@@ -36,6 +43,6 @@ export function cwdHasRepo(cwd: string) {
   return Promise.all([
     listDir(`${cwd}/goals`),
     listDir(`${cwd}/foundations`),
-    listDir(`${cwd}/trust`)
-  ]).then(([g,f,t]) => g.length+f.length+t.length > 0);
+    listDir(`${cwd}/trust`),
+  ]).then(([g, f, t]) => g.length + f.length + t.length > 0);
 }

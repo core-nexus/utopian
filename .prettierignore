@@ -1,0 +1,12 @@
+dist/
+node_modules/
+*.md
+*.json
+*.yaml
+*.yml
+.git/
+.husky/
+# Config files that don't need formatting
+eslint.config.js
+tsup.config.ts
+.prettierrc

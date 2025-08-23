@@ -1,10 +1,8 @@
-import path from "node:path";
+import path from 'node:path';
 import { SimpleOpenAIClient, type ChatMessage } from './openai-client.js';
-import {
-  ensureDir, readText, writeText, listDir, writeYaml
-} from "./tools/fsTools.js";
-import { SYSTEM_PROMPT } from "./prompts/system.js";
-import { hitl } from "./hitl.js";
+import { ensureDir, readText, writeText, listDir, writeYaml } from './tools/fsTools.js';
+import { SYSTEM_PROMPT } from './prompts/system.js';
+import { hitl } from './hitl.js';
 
 export type AgentOptions = {
   cwd: string;
@@ -15,34 +13,36 @@ export type AgentOptions = {
 
 export async function runSimpleAgent(opts: AgentOptions) {
   const cwd = opts.cwd;
-  const baseURL = opts.baseURL ?? (process.env.OPENAI_API_KEY ? "https://api.openai.com/v1" : "http://localhost:1234/v1");
-  const modelName = opts.model ?? (process.env.OPENAI_API_KEY ? "gpt-5" : "openai/gpt-oss-20b");
+  const baseURL =
+    opts.baseURL ??
+    (process.env.OPENAI_API_KEY ? 'https://api.openai.com/v1' : 'http://localhost:1234/v1');
+  const modelName = opts.model ?? (process.env.OPENAI_API_KEY ? 'gpt-5' : 'openai/gpt-oss-20b');
 
   const client = new SimpleOpenAIClient(baseURL);
 
   // ---------- Initial context ----------
-  const goals = await readText(path.join(cwd, "goals", "README.md"));
-  const found = await readText(path.join(cwd, "foundations", "index.yaml"));
-  const trust = await readText(path.join(cwd, "trust", "known_nodes.yaml"));
+  const goals = await readText(path.join(cwd, 'goals', 'README.md'));
+  const found = await readText(path.join(cwd, 'foundations', 'index.yaml'));
+  const trust = await readText(path.join(cwd, 'trust', 'known_nodes.yaml'));
 
   const contextSummary = [
     `Repo present: ${!!(goals || found || trust)}`,
-    goals ? "- goals present" : "- goals missing",
-    found ? "- foundations present" : "- foundations missing",
-    trust ? "- trust present" : "- trust missing"
-  ].join("\n");
+    goals ? '- goals present' : '- goals missing',
+    found ? '- foundations present' : '- foundations missing',
+    trust ? '- trust present' : '- trust missing',
+  ].join('\n');
 
   // Optional HITL at the start to confirm plan
-  await hitl("planning", cwd, "01-planning", contextSummary, opts.auto);
+  await hitl('planning', cwd, '01-planning', contextSummary, opts.auto);
 
   // Create the basic structure first
   await createBasicStructure(cwd);
 
   // Generate AI-powered content for critical topics
   const messages: ChatMessage[] = [
-    { role: "system", content: SYSTEM_PROMPT },
+    { role: 'system', content: SYSTEM_PROMPT },
     {
-      role: "user",
+      role: 'user',
       content: `Project root: ${cwd}
 
 Context:
@@ -56,47 +56,46 @@ I need you to identify and create content for the 3 most critical global challen
 
 Focus on actionable solutions and concrete next steps that individuals and organizations can take.
 
-Respond with a structured JSON format containing the topics and their content.`
-    }
+Respond with a structured JSON format containing the topics and their content.`,
+    },
   ];
 
   try {
-    console.log("\n🧠 Model: Generating critical topics and content...");
+    console.log('\n🧠 Model: Generating critical topics and content...');
     const response = await client.chat(messages, modelName);
     console.log(response);
 
     // Parse and create the suggested topics
     await createCriticalTopics(cwd, response);
 
-    console.log("\n✅ Utopia node initialized - now entering continuous generation mode!");
-    console.log("📁 Created basic structure: goals/, foundations/, trust/");
-    console.log("🌍 Generated critical global topics with slides and video content");
-    console.log("🔄 Beginning deep research and continuous content generation...");
+    console.log('\n✅ Utopia node initialized - now entering continuous generation mode!');
+    console.log('📁 Created basic structure: goals/, foundations/, trust/');
+    console.log('🌍 Generated critical global topics with slides and video content');
+    console.log('🔄 Beginning deep research and continuous content generation...');
 
     // Enter continuous generation mode
     await continuousGeneration(cwd, client, modelName);
-
   } catch (error) {
-    console.error("❌ Error:", error instanceof Error ? error.message : error);
+    console.error('❌ Error:', error instanceof Error ? error.message : error);
     throw error;
   }
 }
 
 async function createBasicStructure(cwd: string) {
   // Check existing structure
-  const foundationsExists = (await listDir(path.join(cwd, "foundations"))).length > 0;
-  const topicsExists = (await listDir(path.join(cwd, "topics"))).length > 0;
+  const foundationsExists = (await listDir(path.join(cwd, 'foundations'))).length > 0;
+  const topicsExists = (await listDir(path.join(cwd, 'topics'))).length > 0;
 
   // Create directories only if they don't exist
-  await ensureDir(path.join(cwd, "goals"));
-  await ensureDir(path.join(cwd, "trust"));
+  await ensureDir(path.join(cwd, 'goals'));
+  await ensureDir(path.join(cwd, 'trust'));
   if (!foundationsExists) {
-    await ensureDir(path.join(cwd, "foundations"));
+    await ensureDir(path.join(cwd, 'foundations'));
   }
 
   // Create goals/README.md only if it doesn't exist
-  const goalsReadme = path.join(cwd, "goals", "README.md");
-  if (!await readText(goalsReadme)) {
+  const goalsReadme = path.join(cwd, 'goals', 'README.md');
+  if (!(await readText(goalsReadme))) {
     const goalsContent = `# Utopia Node Goals
 
 ## Purpose
@@ -118,37 +117,31 @@ A decentralized, collaborative network where nodes work together to create posit
   if (!foundationsExists) {
     const foundationsData = {
       principles: [
-        "Transparency and openness",
-        "Mutual respect and collaboration",
-        "Quality and reliability",
-        "Continuous improvement",
-        "Community-driven development"
+        'Transparency and openness',
+        'Mutual respect and collaboration',
+        'Quality and reliability',
+        'Continuous improvement',
+        'Community-driven development',
       ],
-      values: [
-        "Trust",
-        "Innovation",
-        "Sustainability",
-        "Inclusivity",
-        "Decentralization"
-      ],
-      established: new Date().toISOString().split('T')[0]
+      values: ['Trust', 'Innovation', 'Sustainability', 'Inclusivity', 'Decentralization'],
+      established: new Date().toISOString().split('T')[0],
     };
-    await writeYaml(path.join(cwd, "foundations", "index.yaml"), foundationsData);
+    await writeYaml(path.join(cwd, 'foundations', 'index.yaml'), foundationsData);
   }
 
   // Create trust/known_nodes.yaml only if it doesn't exist
-  const trustFile = path.join(cwd, "trust", "known_nodes.yaml");
-  if (!await readText(trustFile)) {
+  const trustFile = path.join(cwd, 'trust', 'known_nodes.yaml');
+  if (!(await readText(trustFile))) {
     const trustData = {
       nodes: [
         {
-          url: "https://github.com/core-nexus/utopia",
+          url: 'https://github.com/core-nexus/utopia',
           score: 1.0,
-          type: "core",
-          description: "Core Utopia project repository"
-        }
+          type: 'core',
+          description: 'Core Utopia project repository',
+        },
       ],
-      last_updated: new Date().toISOString()
+      last_updated: new Date().toISOString(),
     };
     await writeYaml(trustFile, trustData);
   }
@@ -182,67 +175,68 @@ ${!foundationsExists ? '- ✅ Foundations established in `foundations/index.yaml
 
   if (topicsExists) {
     // Use topics/utopia-init/reports/report.md structure
-    const topicReportsDir = path.join(cwd, "topics", "utopia-init", "reports");
+    const topicReportsDir = path.join(cwd, 'topics', 'utopia-init', 'reports');
     await ensureDir(topicReportsDir);
-    await writeText(path.join(topicReportsDir, "report.md"), reportContent);
+    await writeText(path.join(topicReportsDir, 'report.md'), reportContent);
   } else {
     // Fall back to reports/utopia-report.md
-    await ensureDir(path.join(cwd, "reports"));
-    await writeText(path.join(cwd, "reports", "utopia-report.md"), reportContent);
+    await ensureDir(path.join(cwd, 'reports'));
+    await writeText(path.join(cwd, 'reports', 'utopia-report.md'), reportContent);
   }
 }
 
-async function createCriticalTopics(cwd: string, aiResponse: string) {
+async function createCriticalTopics(cwd: string, _aiResponse: string) {
   // Critical global topics to create regardless of AI response
   const criticalTopics = [
     {
-      slug: "climate-action",
-      title: "Climate Action & Sustainability",
-      description: "Addressing climate change through renewable energy, sustainable practices, and policy advocacy",
+      slug: 'climate-action',
+      title: 'Climate Action & Sustainability',
+      description:
+        'Addressing climate change through renewable energy, sustainable practices, and policy advocacy',
       actions: [
-        "Transition to renewable energy sources",
-        "Implement circular economy principles",
-        "Support climate policy and regulation",
-        "Educate communities on sustainable practices"
-      ]
+        'Transition to renewable energy sources',
+        'Implement circular economy principles',
+        'Support climate policy and regulation',
+        'Educate communities on sustainable practices',
+      ],
     },
     {
-      slug: "digital-rights",
-      title: "Digital Rights & AI Ethics",
-      description: "Ensuring ethical AI development and protecting digital rights for all",
+      slug: 'digital-rights',
+      title: 'Digital Rights & AI Ethics',
+      description: 'Ensuring ethical AI development and protecting digital rights for all',
       actions: [
-        "Advocate for transparent AI governance",
-        "Protect digital privacy and data rights",
-        "Ensure equitable access to technology",
-        "Promote ethical AI research and development"
-      ]
+        'Advocate for transparent AI governance',
+        'Protect digital privacy and data rights',
+        'Ensure equitable access to technology',
+        'Promote ethical AI research and development',
+      ],
     },
     {
-      slug: "global-health-equity",
-      title: "Global Health Equity",
-      description: "Ensuring healthcare access and addressing global health disparities",
+      slug: 'global-health-equity',
+      title: 'Global Health Equity',
+      description: 'Ensuring healthcare access and addressing global health disparities',
       actions: [
-        "Support universal healthcare initiatives",
-        "Address healthcare disparities in underserved communities",
-        "Promote public health education and prevention",
-        "Advocate for affordable medicines and treatments"
-      ]
-    }
+        'Support universal healthcare initiatives',
+        'Address healthcare disparities in underserved communities',
+        'Promote public health education and prevention',
+        'Advocate for affordable medicines and treatments',
+      ],
+    },
   ];
 
   // Create topics directory structure
-  const topicsExists = (await listDir(path.join(cwd, "topics"))).length > 0;
+  const topicsExists = (await listDir(path.join(cwd, 'topics'))).length > 0;
   if (!topicsExists) {
-    await ensureDir(path.join(cwd, "topics"));
+    await ensureDir(path.join(cwd, 'topics'));
   }
 
   for (const topic of criticalTopics) {
-    const topicDir = path.join(cwd, "topics", topic.slug);
+    const topicDir = path.join(cwd, 'topics', topic.slug);
     await ensureDir(topicDir);
-    await ensureDir(path.join(topicDir, "docs"));
-    await ensureDir(path.join(topicDir, "slides"));
-    await ensureDir(path.join(topicDir, "video"));
-    await ensureDir(path.join(topicDir, "reports"));
+    await ensureDir(path.join(topicDir, 'docs'));
+    await ensureDir(path.join(topicDir, 'slides'));
+    await ensureDir(path.join(topicDir, 'video'));
+    await ensureDir(path.join(topicDir, 'reports'));
 
     // Create topic overview document
     const overviewContent = `---
@@ -281,7 +275,7 @@ This topic requires immediate attention and coordinated global action.
 ---
 *Generated by Utopia Node Agent - ${new Date().toISOString().split('T')[0]}*
 `;
-    await writeText(path.join(topicDir, "docs", "overview.md"), overviewContent);
+    await writeText(path.join(topicDir, 'docs', 'overview.md'), overviewContent);
 
     // Create Marp-compatible presentation slides
     const slidesContent = `---
@@ -354,7 +348,7 @@ ${topic.actions.map((action, i) => `## ${i + 1}. ${action}`).join('\n\n')}
 Generated by Utopia Node Agent
 ${new Date().toISOString().split('T')[0]}
 `;
-    await writeText(path.join(topicDir, "slides", "presentation.md"), slidesContent);
+    await writeText(path.join(topicDir, 'slides', 'presentation.md'), slidesContent);
 
     // Create video script outline
     const videoScriptContent = `# Video Script: ${topic.title}
@@ -419,7 +413,7 @@ ${topic.title} - Because the future depends on what we do today."
 ---
 *Generated by Utopia Node Agent - ${new Date().toISOString().split('T')[0]}*
 `;
-    await writeText(path.join(topicDir, "video", "script.md"), videoScriptContent);
+    await writeText(path.join(topicDir, 'video', 'script.md'), videoScriptContent);
 
     // Create initial report
     const reportContent = `# ${topic.title} - Status Report
@@ -454,7 +448,7 @@ ${topic.description}
 ---
 *Generated by Utopia Node Agent*
 `;
-    await writeText(path.join(topicDir, "reports", "report.md"), reportContent);
+    await writeText(path.join(topicDir, 'reports', 'report.md'), reportContent);
   }
 
   console.log(`\n📁 Created ${criticalTopics.length} critical topic directories:`);
@@ -469,50 +463,58 @@ async function continuousGeneration(cwd: string, client: SimpleOpenAIClient, mod
 
   while (iteration <= maxIterations) {
     console.log(`\n🔄 === Continuous Generation Cycle ${iteration} ===`);
-    
+
     try {
       // Phase 1: Deep Research Reports
-      console.log("📊 Phase 1: Generating deep research reports...");
+      console.log('📊 Phase 1: Generating deep research reports...');
       await generateResearchReports(cwd, client, modelName, iteration);
-      
-      // Phase 2: Explore Trust Network  
-      console.log("🕸️  Phase 2: Exploring and expanding trust network...");
+
+      // Phase 2: Explore Trust Network
+      console.log('🕸️  Phase 2: Exploring and expanding trust network...');
       await exploreTrustNetwork(cwd, client, modelName);
-      
+
       // Phase 3: Generate New Topics
-      console.log("🆕 Phase 3: Discovering and creating new critical topics...");
+      console.log('🆕 Phase 3: Discovering and creating new critical topics...');
       await discoverNewTopics(cwd, client, modelName, iteration);
-      
+
       // Phase 4: Synthesize Existing Content
-      console.log("🔄 Phase 4: Synthesizing and updating existing content...");
+      console.log('🔄 Phase 4: Synthesizing and updating existing content...');
       await synthesizeExistingContent(cwd, client, modelName);
-      
+
       // Phase 5: Generate Media Content
-      console.log("🎬 Phase 5: Creating video scripts and slide presentations...");
+      console.log('🎬 Phase 5: Creating video scripts and slide presentations...');
       await generateMediaContent(cwd, client, modelName, iteration);
-      
+
       console.log(`✅ Cycle ${iteration} complete. Continuing to next iteration...`);
       iteration++;
-      
+
       // Small delay to prevent overwhelming the API
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
     } catch (error) {
-      console.error(`❌ Error in cycle ${iteration}:`, error instanceof Error ? error.message : error);
-      console.log("🔄 Continuing with next cycle...");
+      console.error(
+        `❌ Error in cycle ${iteration}:`,
+        error instanceof Error ? error.message : error
+      );
+      console.log('🔄 Continuing with next cycle...');
       iteration++;
       await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
-  
+
   console.log(`\n🏁 Completed ${maxIterations} generation cycles. System ready for production!`);
 }
 
-async function generateResearchReports(cwd: string, client: SimpleOpenAIClient, modelName: string, iteration: number) {
+async function generateResearchReports(
+  cwd: string,
+  client: SimpleOpenAIClient,
+  modelName: string,
+  iteration: number
+) {
   // Get existing topics to research
-  const topicDirs = await listDir(path.join(cwd, "topics"));
-  
-  for (const topicSlug of topicDirs.slice(0, 2)) { // Process 2 topics per cycle to avoid overwhelming
+  const topicDirs = await listDir(path.join(cwd, 'topics'));
+
+  for (const topicSlug of topicDirs.slice(0, 2)) {
+    // Process 2 topics per cycle to avoid overwhelming
     const researchPrompt = `Generate a comprehensive research report for the ${topicSlug} topic. Include:
     
 1. Current global statistics and data
@@ -527,12 +529,25 @@ async function generateResearchReports(cwd: string, client: SimpleOpenAIClient, 
 Make it thorough, well-researched, and actionable. Focus on data-driven insights and practical next steps.`;
 
     try {
-      const research = await client.chat([
-        { role: "system", content: "You are an expert researcher focused on global challenges and solutions. Provide comprehensive, well-sourced research reports." },
-        { role: "user", content: researchPrompt }
-      ], modelName);
+      const research = await client.chat(
+        [
+          {
+            role: 'system',
+            content:
+              'You are an expert researcher focused on global challenges and solutions. Provide comprehensive, well-sourced research reports.',
+          },
+          { role: 'user', content: researchPrompt },
+        ],
+        modelName
+      );
 
-      const reportPath = path.join(cwd, "topics", topicSlug, "reports", `deep-research-${iteration}.md`);
+      const reportPath = path.join(
+        cwd,
+        'topics',
+        topicSlug,
+        'reports',
+        `deep-research-${iteration}.md`
+      );
       const reportContent = `# Deep Research Report - ${topicSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
 
 **Report #**: ${iteration}  
@@ -544,7 +559,7 @@ ${research}
 ---
 *Generated by eutopia-agent continuous generation cycle ${iteration}*
 `;
-      
+
       await writeText(reportPath, reportContent);
       console.log(`  📄 Generated research report: ${reportPath}`);
     } catch (error) {
@@ -565,15 +580,21 @@ async function exploreTrustNetwork(cwd: string, client: SimpleOpenAIClient, mode
 Format as YAML for trust/known_nodes.yaml`;
 
   try {
-    const trustResponse = await client.chat([
-      { role: "system", content: "You are a network analyst identifying trustworthy organizations for collaboration in global challenge solutions." },
-      { role: "user", content: trustPrompt }
-    ], modelName);
+    const trustResponse = await client.chat(
+      [
+        {
+          role: 'system',
+          content:
+            'You are a network analyst identifying trustworthy organizations for collaboration in global challenge solutions.',
+        },
+        { role: 'user', content: trustPrompt },
+      ],
+      modelName
+    );
 
     // Parse and append to existing trust network
-    const trustFile = path.join(cwd, "trust", "known_nodes.yaml");
     const timestamp = new Date().toISOString();
-    
+
     const expandedTrustContent = `# Expanded Trust Network - ${timestamp}
 
 ${trustResponse}
@@ -586,16 +607,21 @@ status: active_discovery
 ---
 *Generated by eutopia-agent trust network exploration*
 `;
-    
-    const expandedTrustFile = path.join(cwd, "trust", `expanded-network-${Date.now()}.yaml`);
+
+    const expandedTrustFile = path.join(cwd, 'trust', `expanded-network-${Date.now()}.yaml`);
     await writeText(expandedTrustFile, expandedTrustContent);
     console.log(`  🕸️  Expanded trust network: ${expandedTrustFile}`);
   } catch (error) {
-    console.error("  ❌ Failed to expand trust network:", error);
+    console.error('  ❌ Failed to expand trust network:', error);
   }
 }
 
-async function discoverNewTopics(cwd: string, client: SimpleOpenAIClient, modelName: string, iteration: number) {
+async function discoverNewTopics(
+  cwd: string,
+  client: SimpleOpenAIClient,
+  modelName: string,
+  iteration: number
+) {
   const discoveryPrompt = `Based on current global developments in 2024-2025, identify 2 emerging critical challenges that need urgent attention but aren't widely discussed yet. Consider:
 
 1. Technological disruptions and their societal impact
@@ -614,16 +640,23 @@ For each topic, provide:
 Format as JSON with topic details.`;
 
   try {
-    const newTopics = await client.chat([
-      { role: "system", content: "You are a futures analyst identifying emerging global challenges that require immediate attention and action." },
-      { role: "user", content: discoveryPrompt }
-    ], modelName);
+    const newTopics = await client.chat(
+      [
+        {
+          role: 'system',
+          content:
+            'You are a futures analyst identifying emerging global challenges that require immediate attention and action.',
+        },
+        { role: 'user', content: discoveryPrompt },
+      ],
+      modelName
+    );
 
     // Create directory for discovered topics
-    const discoveryDir = path.join(cwd, "topics", `emerging-${iteration}`);
+    const discoveryDir = path.join(cwd, 'topics', `emerging-${iteration}`);
     await ensureDir(discoveryDir);
-    
-    const discoveryFile = path.join(discoveryDir, "discovery.md");
+
+    const discoveryFile = path.join(discoveryDir, 'discovery.md');
     const discoveryContent = `# Emerging Topics Discovery - Cycle ${iteration}
 
 **Discovery Date**: ${new Date().toISOString()}  
@@ -641,15 +674,19 @@ ${newTopics}
 ---
 *Generated by eutopia-agent topic discovery cycle ${iteration}*
 `;
-    
+
     await writeText(discoveryFile, discoveryContent);
     console.log(`  🆕 Discovered new topics: ${discoveryFile}`);
   } catch (error) {
-    console.error("  ❌ Failed to discover new topics:", error);
+    console.error('  ❌ Failed to discover new topics:', error);
   }
 }
 
-async function synthesizeExistingContent(cwd: string, client: SimpleOpenAIClient, modelName: string) {
+async function synthesizeExistingContent(
+  cwd: string,
+  client: SimpleOpenAIClient,
+  modelName: string
+) {
   // Read existing reports and synthesize insights
   const synthesisPrompt = `Analyze all existing content in this Utopia node and create a synthesis report that:
 
@@ -662,12 +699,19 @@ async function synthesizeExistingContent(cwd: string, client: SimpleOpenAIClient
 Focus on creating actionable insights that connect different challenge areas.`;
 
   try {
-    const synthesis = await client.chat([
-      { role: "system", content: "You are a systems analyst synthesizing complex information to identify patterns and strategic opportunities." },
-      { role: "user", content: synthesisPrompt }
-    ], modelName);
+    const synthesis = await client.chat(
+      [
+        {
+          role: 'system',
+          content:
+            'You are a systems analyst synthesizing complex information to identify patterns and strategic opportunities.',
+        },
+        { role: 'user', content: synthesisPrompt },
+      ],
+      modelName
+    );
 
-    const synthesisFile = path.join(cwd, "reports", `synthesis-${Date.now()}.md`);
+    const synthesisFile = path.join(cwd, 'reports', `synthesis-${Date.now()}.md`);
     const synthesisContent = `# Content Synthesis Report
 
 **Generated**: ${new Date().toISOString()}  
@@ -685,16 +729,21 @@ Based on this synthesis, the following actions are recommended for maximum impac
 ---
 *Generated by eutopia-agent content synthesis*
 `;
-    
-    await ensureDir(path.join(cwd, "reports"));
+
+    await ensureDir(path.join(cwd, 'reports'));
     await writeText(synthesisFile, synthesisContent);
     console.log(`  🔄 Content synthesis: ${synthesisFile}`);
   } catch (error) {
-    console.error("  ❌ Failed to synthesize content:", error);
+    console.error('  ❌ Failed to synthesize content:', error);
   }
 }
 
-async function generateMediaContent(cwd: string, client: SimpleOpenAIClient, modelName: string, iteration: number) {
+async function generateMediaContent(
+  cwd: string,
+  client: SimpleOpenAIClient,
+  modelName: string,
+  iteration: number
+) {
   // Generate updated slide decks and video scripts
   const mediaPrompt = `Create compelling presentation and video content for global challenge solutions. Generate:
 
@@ -706,12 +755,19 @@ async function generateMediaContent(cwd: string, client: SimpleOpenAIClient, mod
 Make it inspiring, data-driven, and focused on concrete actions people can take immediately.`;
 
   try {
-    const mediaContent = await client.chat([
-      { role: "system", content: "You are a content creator specializing in compelling, action-oriented media that drives social change." },
-      { role: "user", content: mediaPrompt }
-    ], modelName);
+    const mediaContent = await client.chat(
+      [
+        {
+          role: 'system',
+          content:
+            'You are a content creator specializing in compelling, action-oriented media that drives social change.',
+        },
+        { role: 'user', content: mediaPrompt },
+      ],
+      modelName
+    );
 
-    const mediaFile = path.join(cwd, "media", `content-${iteration}-${Date.now()}.md`);
+    const mediaFile = path.join(cwd, 'media', `content-${iteration}-${Date.now()}.md`);
     const mediaContentFormatted = `# Media Content Package - Cycle ${iteration}
 
 **Generated**: ${new Date().toISOString()}  
@@ -728,11 +784,11 @@ ${mediaContent}
 ---
 *Generated by eutopia-agent media generation cycle ${iteration}*
 `;
-    
-    await ensureDir(path.join(cwd, "media"));
+
+    await ensureDir(path.join(cwd, 'media'));
     await writeText(mediaFile, mediaContentFormatted);
     console.log(`  🎬 Media content: ${mediaFile}`);
   } catch (error) {
-    console.error("  ❌ Failed to generate media content:", error);
+    console.error('  ❌ Failed to generate media content:', error);
   }
 }

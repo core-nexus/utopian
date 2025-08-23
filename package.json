@@ -32,8 +32,11 @@
     "build": "tsup",
     "check-version": "pnpm view eutopia-agent version",
     "dev": "tsx src/cli.ts",
+    "lint": "eslint \"src/**/*.{js,ts}\" --fix",
+    "lint:check": "eslint \"src/**/*.{js,ts}\"",
     "fmt": "prettier -w .",
-    "prepare": "pnpm run build",
+    "fmt:check": "prettier --check .",
+    "prepare": "husky",
     "prepublishOnly": "pnpm run build",
     "publish:dry": "pnpm publish --dry-run",
     "republish": "pnpm version patch && pnpm publish",
@@ -51,8 +54,16 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
+    "@eslint/js": "^9.34.0",
     "@marp-team/marp-cli": "^4.2.3",
     "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
     "sort-package-json": "^3.4.0",
     "tsup": "^8.5.0",
@@ -60,5 +71,11 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "lint-staged": {
+    "src/**/*.{js,ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

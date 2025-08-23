@@ -15,23 +15,23 @@ export interface ChatCompletionResponse {
 
 export class SimpleOpenAIClient {
   constructor(
-    private baseURL: string = "http://localhost:1234/v1",
-    private apiKey: string = process.env.OPENAI_API_KEY || "lm-studio"
+    private baseURL: string = 'http://localhost:1234/v1',
+    private apiKey: string = process.env.OPENAI_API_KEY || 'lm-studio'
   ) {}
 
-  async chat(messages: ChatMessage[], model: string = "openai/gpt-oss-20b"): Promise<string> {
+  async chat(messages: ChatMessage[], model: string = 'openai/gpt-oss-20b'): Promise<string> {
     const response = await fetch(`${this.baseURL}/chat/completions`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${this.apiKey}`
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
         model,
         messages,
         temperature: 0.7,
-        max_tokens: 1000
-      })
+        max_tokens: 1000,
+      }),
     });
 
     if (!response.ok) {
@@ -40,6 +40,6 @@ export class SimpleOpenAIClient {
     }
 
     const result: ChatCompletionResponse = await response.json();
-    return result.choices[0]?.message?.content || "";
+    return result.choices[0]?.message?.content || '';
   }
 }
