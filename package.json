@@ -21,10 +21,12 @@
   "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "bin": {
-    "utopian": "dist/cli.js"
+    "utopian": "bin/utopian.js"
   },
   "files": [
     "dist",
+    "bin",
+    "mod.ts",
     "README.md",
     "AGENTS.md"
   ],
