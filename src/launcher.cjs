@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Smart security wrapper for utopian
+ * Smart security launcher for utopian
  *
- * This wrapper automatically detects Deno availability and uses it with security
- * restrictions when available. Falls back to Node.js when Deno is not installed.
- *
- * Provides the "trust halo of npx + the sandbox of Deno"
+ * Detects Deno availability and uses it with security restrictions when available.
+ * Falls back to Node.js when Deno is not installed.
  */
 
 const { spawn } = require('child_process');
@@ -47,16 +45,16 @@ function findModuleRoot() {
     currentDir = path.dirname(currentDir);
   }
 
-  // If not found, assume we're in the bin directory of the package
+  // If not found, assume we're in src directory
   return path.dirname(__dirname);
 }
 
 async function runWithDeno(args) {
   const moduleRoot = findModuleRoot();
-  const modPath = path.join(moduleRoot, 'mod.ts');
+  const denoEntryPath = path.join(moduleRoot, 'src', 'deno-entry.ts');
 
-  if (!existsSync(modPath)) {
-    console.error('❌ Deno entry point not found at:', modPath);
+  if (!existsSync(denoEntryPath)) {
+    console.error('❌ Deno entry point not found at:', denoEntryPath);
     console.log('Falling back to Node.js...\n');
     return false;
   }
@@ -74,8 +72,8 @@ async function runWithDeno(args) {
     '--allow-net=api.openai.com,localhost:1234',
     '--allow-run=lms',
     '--allow-env',
-    modPath,
-    ...args
+    denoEntryPath,
+    ...args,
   ];
 
   const deno = spawn('deno', denoArgs, {
@@ -163,6 +161,6 @@ Install Deno for enhanced security: https://deno.com/
 }
 
 main().catch(err => {
-  console.error('❌ Wrapper error:', err);
+  console.error('❌ Launcher error:', err);
   process.exit(1);
 });

@@ -21,12 +21,12 @@
   "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "bin": {
-    "utopian": "bin/utopian.cjs"
+    "utopian": "src/launcher.cjs"
   },
   "files": [
     "dist",
-    "bin",
-    "mod.ts",
+    "src/launcher.cjs",
+    "src/deno-entry.ts",
     "README.md",
     "AGENTS.md"
   ],
@@ -34,8 +34,8 @@
     "build": "tsup",
     "check-version": "pnpm view utopian version",
     "dev": "tsx src/cli.ts",
-    "lint": "eslint \"src/**/*.{js,ts}\" --fix",
-    "lint:check": "eslint \"src/**/*.{js,ts}\"",
+    "lint": "eslint \"src/**/*.{js,ts}\" --ignore-pattern \"src/deno-*.ts\" --fix",
+    "lint:check": "eslint \"src/**/*.{js,ts}\" --ignore-pattern \"src/deno-*.ts\"",
     "fmt": "prettier -w .",
     "fmt:check": "prettier --check .",
     "prepare": "husky",
