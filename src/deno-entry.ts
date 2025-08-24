@@ -8,8 +8,8 @@
 
 import { parse } from 'https://deno.land/std@0.224.0/flags/mod.ts';
 
-// Import the Deno-compatible agent implementation
-import { runSimpleAgent } from './deno-agent.ts';
+// Import the shared agent implementation (works in both Node and Deno)
+import { runSimpleAgent } from './deno-agent.js';
 
 interface AgentOptions {
   cwd: string;

@@ -14,10 +14,18 @@ export interface ChatCompletionResponse {
 }
 
 export class SimpleOpenAIClient {
+  private apiKey: string;
+
   constructor(
     private baseURL: string = 'http://localhost:1234/v1',
-    private apiKey: string = process.env.OPENAI_API_KEY || 'lm-studio'
-  ) {}
+    apiKey?: string
+  ) {
+    // Runtime-agnostic environment variable access
+    const isDeno = typeof Deno !== 'undefined';
+    const getEnv = (key: string) => (isDeno ? Deno.env.get(key) : process.env[key]);
+
+    this.apiKey = apiKey || getEnv('OPENAI_API_KEY') || 'lm-studio';
+  }
 
   async chat(messages: ChatMessage[], model: string = 'openai/gpt-oss-20b'): Promise<string> {
     const response = await fetch(`${this.baseURL}/chat/completions`, {

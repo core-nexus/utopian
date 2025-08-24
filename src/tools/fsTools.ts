@@ -1,28 +1,60 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import YAML from 'yaml';
+// Runtime-agnostic file system utilities
+const isDeno = typeof Deno !== 'undefined';
+
+// Dynamic imports based on runtime
+const fs = isDeno ? null : (await import('node:fs/promises')).default;
+const path = isDeno ? null : (await import('node:path')).default;
+const YAML = isDeno ? null : (await import('yaml')).default;
+
+// Deno-specific imports (only loaded when needed)
+const denoEnsureDir = isDeno
+  ? (await import('https://deno.land/std@0.224.0/fs/ensure_dir.ts')).ensureDir
+  : null;
+const denoPath = isDeno ? await import('https://deno.land/std@0.224.0/path/mod.ts') : null;
+const denoYaml = isDeno ? await import('https://deno.land/std@0.224.0/yaml/mod.ts') : null;
 
 export async function ensureDir(p: string) {
-  await fs.mkdir(p, { recursive: true });
+  if (isDeno) {
+    await denoEnsureDir!(p);
+  } else {
+    await fs!.mkdir(p, { recursive: true });
+  }
 }
 
 export async function readText(p: string) {
   try {
-    return await fs.readFile(p, 'utf8');
+    if (isDeno) {
+      return await Deno.readTextFile(p);
+    } else {
+      return await fs!.readFile(p, 'utf8');
+    }
   } catch {
     return undefined;
   }
 }
 
 export async function writeText(p: string, content: string) {
-  await ensureDir(path.dirname(p));
-  await fs.writeFile(p, content, 'utf8');
+  if (isDeno) {
+    await ensureDir(denoPath!.dirname(p));
+    await Deno.writeTextFile(p, content);
+  } else {
+    await ensureDir(path!.dirname(p));
+    await fs!.writeFile(p, content, 'utf8');
+  }
   return p;
 }
 
 export async function listDir(p: string) {
   try {
-    return (await fs.readdir(p, { withFileTypes: true })).map(d => d.name);
+    if (isDeno) {
+      const entries = [];
+      for await (const entry of Deno.readDir(p)) {
+        entries.push(entry.name);
+      }
+      return entries;
+    } else {
+      return (await fs!.readdir(p, { withFileTypes: true })).map(d => d.name);
+    }
   } catch {
     return [];
   }
@@ -31,11 +63,16 @@ export async function listDir(p: string) {
 export async function readYaml<T = unknown>(p: string): Promise<T | undefined> {
   const txt = await readText(p);
   if (!txt) return undefined;
-  return YAML.parse(txt) as T;
+
+  if (isDeno) {
+    return denoYaml!.parse(txt) as T;
+  } else {
+    return YAML!.parse(txt) as T;
+  }
 }
 
 export async function writeYaml(p: string, obj: unknown) {
-  const txt = YAML.stringify(obj);
+  const txt = isDeno ? denoYaml!.stringify(obj) : YAML!.stringify(obj);
   return writeText(p, txt);
 }
 
