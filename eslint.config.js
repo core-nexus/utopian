@@ -28,6 +28,8 @@ export default [
         module: 'readonly',
         require: 'readonly',
         exports: 'readonly',
+        // Deno globals
+        Deno: 'readonly',
       },
     },
     plugins: {
