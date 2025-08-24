@@ -1,0 +1,21 @@
+{
+  "name": "@core-nexus/utopian",
+  "version": "0.1.11",
+  "exports": "./mod.ts",
+  "tasks": {
+    "dev": "deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms mod.ts",
+    "start": "deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms mod.ts"
+  },
+  "imports": {
+    "@std/cli": "jsr:@std/cli@^1.0.0",
+    "@std/path": "jsr:@std/path@^1.0.0",
+    "@std/yaml": "jsr:@std/yaml@^1.0.0"
+  },
+  "permissions": {
+    "read": ["."],
+    "write": ["."],
+    "net": ["127.0.0.1", "api.openai.com", "localhost:1234"],
+    "env": true,
+    "run": ["lms"]
+  }
+}
