@@ -1,7 +1,7 @@
 {
   "name": "utopian",
   "version": "0.1.11",
-  "description": "Utopia Node agent - Deno-powered for maximum security and performance",
+  "description": "Utopia Node agent - Pure Deno implementation with security sandboxing",
   "keywords": [
     "deno",
     "ai",
@@ -21,20 +21,22 @@
   "license": "Apache-2.0",
   "author": "Harlan T Wood",
   "type": "module",
-  "main": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "dist/cli.js",
   "bin": {
     "utopian": "dist/cli.js"
   },
   "files": [
     "dist",
+    "mod.ts",
+    "deno.json",
+    "src",
     "README.md",
     "AGENTS.md"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "node scripts/build-npm-wrapper.js",
     "check-version": "pnpm view utopian version",
-    "dev": "tsx src/cli.ts",
+    "dev": "deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms mod.ts",
     "lint": "eslint \"src/**/*.{js,ts}\" --fix",
     "lint:check": "eslint \"src/**/*.{js,ts}\"",
     "fmt": "prettier -w .",

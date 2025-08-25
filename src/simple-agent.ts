@@ -1,8 +1,8 @@
-import path from 'node:path';
-import { SimpleOpenAIClient, type ChatMessage } from './openai-client.js';
-import { ensureDir, readText, writeText, listDir, writeYaml } from './tools/fsTools.js';
-import { SYSTEM_PROMPT } from './prompts/system.js';
-import { hitl } from './hitl.js';
+import { join } from "jsr:@std/path";
+import { SimpleOpenAIClient, type ChatMessage } from './openai-client.ts';
+import { ensureDir, readText, writeText, listDir, writeYaml } from './tools/fsTools.ts';
+import { SYSTEM_PROMPT } from './prompts/system.ts';
+import { hitl } from './hitl.ts';
 
 export type AgentOptions = {
   cwd: string;
@@ -15,15 +15,15 @@ export async function runSimpleAgent(opts: AgentOptions) {
   const cwd = opts.cwd;
   const baseURL =
     opts.baseURL ??
-    (process.env.OPENAI_API_KEY ? 'https://api.openai.com/v1' : 'http://localhost:1234/v1');
-  const modelName = opts.model ?? (process.env.OPENAI_API_KEY ? 'gpt-5' : 'openai/gpt-oss-20b');
+    (Deno.env.get('OPENAI_API_KEY') ? 'https://api.openai.com/v1' : 'http://localhost:1234/v1');
+  const modelName = opts.model ?? (Deno.env.get('OPENAI_API_KEY') ? 'gpt-5' : 'openai/gpt-oss-20b');
 
   const client = new SimpleOpenAIClient(baseURL);
 
   // ---------- Initial context ----------
-  const goals = await readText(path.join(cwd, 'goals', 'README.md'));
-  const found = await readText(path.join(cwd, 'foundations', 'index.yaml'));
-  const trust = await readText(path.join(cwd, 'trust', 'known_nodes.yaml'));
+  const goals = await readText(join(cwd, 'goals', 'README.md'));
+  const found = await readText(join(cwd, 'foundations', 'index.yaml'));
+  const trust = await readText(join(cwd, 'trust', 'known_nodes.yaml'));
 
   const contextSummary = [
     `Repo present: ${!!(goals || found || trust)}`,
@@ -83,18 +83,18 @@ Respond with a structured JSON format containing the topics and their content.`,
 
 async function createBasicStructure(cwd: string) {
   // Check existing structure
-  const foundationsExists = (await listDir(path.join(cwd, 'foundations'))).length > 0;
-  const topicsExists = (await listDir(path.join(cwd, 'topics'))).length > 0;
+  const foundationsExists = (await listDir(join(cwd, 'foundations'))).length > 0;
+  const topicsExists = (await listDir(join(cwd, 'topics'))).length > 0;
 
   // Create directories only if they don't exist
-  await ensureDir(path.join(cwd, 'goals'));
-  await ensureDir(path.join(cwd, 'trust'));
+  await ensureDir(join(cwd, 'goals'));
+  await ensureDir(join(cwd, 'trust'));
   if (!foundationsExists) {
-    await ensureDir(path.join(cwd, 'foundations'));
+    await ensureDir(join(cwd, 'foundations'));
   }
 
   // Create goals/README.md only if it doesn't exist
-  const goalsReadme = path.join(cwd, 'goals', 'README.md');
+  const goalsReadme = join(cwd, 'goals', 'README.md');
   if (!(await readText(goalsReadme))) {
     const goalsContent = `# Utopia Node Goals
 
@@ -126,11 +126,11 @@ A decentralized, collaborative network where nodes work together to create posit
       values: ['Trust', 'Innovation', 'Sustainability', 'Inclusivity', 'Decentralization'],
       established: new Date().toISOString().split('T')[0],
     };
-    await writeYaml(path.join(cwd, 'foundations', 'index.yaml'), foundationsData);
+    await writeYaml(join(cwd, 'foundations', 'index.yaml'), foundationsData);
   }
 
   // Create trust/known_nodes.yaml only if it doesn't exist
-  const trustFile = path.join(cwd, 'trust', 'known_nodes.yaml');
+  const trustFile = join(cwd, 'trust', 'known_nodes.yaml');
   if (!(await readText(trustFile))) {
     const trustData = {
       nodes: [
@@ -175,13 +175,13 @@ ${!foundationsExists ? '- ✅ Foundations established in `foundations/index.yaml
 
   if (topicsExists) {
     // Use topics/utopia-init/reports/report.md structure
-    const topicReportsDir = path.join(cwd, 'topics', 'utopia-init', 'reports');
+    const topicReportsDir = join(cwd, 'topics', 'utopia-init', 'reports');
     await ensureDir(topicReportsDir);
-    await writeText(path.join(topicReportsDir, 'report.md'), reportContent);
+    await writeText(join(topicReportsDir, 'report.md'), reportContent);
   } else {
     // Fall back to reports/utopia-report.md
-    await ensureDir(path.join(cwd, 'reports'));
-    await writeText(path.join(cwd, 'reports', 'utopia-report.md'), reportContent);
+    await ensureDir(join(cwd, 'reports'));
+    await writeText(join(cwd, 'reports', 'utopia-report.md'), reportContent);
   }
 }
 
@@ -225,18 +225,18 @@ async function createCriticalTopics(cwd: string, _aiResponse: string) {
   ];
 
   // Create topics directory structure
-  const topicsExists = (await listDir(path.join(cwd, 'topics'))).length > 0;
+  const topicsExists = (await listDir(join(cwd, 'topics'))).length > 0;
   if (!topicsExists) {
-    await ensureDir(path.join(cwd, 'topics'));
+    await ensureDir(join(cwd, 'topics'));
   }
 
   for (const topic of criticalTopics) {
-    const topicDir = path.join(cwd, 'topics', topic.slug);
+    const topicDir = join(cwd, 'topics', topic.slug);
     await ensureDir(topicDir);
-    await ensureDir(path.join(topicDir, 'docs'));
-    await ensureDir(path.join(topicDir, 'slides'));
-    await ensureDir(path.join(topicDir, 'video'));
-    await ensureDir(path.join(topicDir, 'reports'));
+    await ensureDir(join(topicDir, 'docs'));
+    await ensureDir(join(topicDir, 'slides'));
+    await ensureDir(join(topicDir, 'video'));
+    await ensureDir(join(topicDir, 'reports'));
 
     // Create topic overview document
     const overviewContent = `---
@@ -275,7 +275,7 @@ This topic requires immediate attention and coordinated global action.
 ---
 *Generated by Utopia Node Agent - ${new Date().toISOString().split('T')[0]}*
 `;
-    await writeText(path.join(topicDir, 'docs', 'overview.md'), overviewContent);
+    await writeText(join(topicDir, 'docs', 'overview.md'), overviewContent);
 
     // Create Marp-compatible presentation slides
     const slidesContent = `---
@@ -348,7 +348,7 @@ ${topic.actions.map((action, i) => `## ${i + 1}. ${action}`).join('\n\n')}
 Generated by Utopia Node Agent
 ${new Date().toISOString().split('T')[0]}
 `;
-    await writeText(path.join(topicDir, 'slides', 'presentation.md'), slidesContent);
+    await writeText(join(topicDir, 'slides', 'presentation.md'), slidesContent);
 
     // Create video script outline
     const videoScriptContent = `# Video Script: ${topic.title}
@@ -413,7 +413,7 @@ ${topic.title} - Because the future depends on what we do today."
 ---
 *Generated by Utopia Node Agent - ${new Date().toISOString().split('T')[0]}*
 `;
-    await writeText(path.join(topicDir, 'video', 'script.md'), videoScriptContent);
+    await writeText(join(topicDir, 'video', 'script.md'), videoScriptContent);
 
     // Create initial report
     const reportContent = `# ${topic.title} - Status Report
@@ -448,7 +448,7 @@ ${topic.description}
 ---
 *Generated by Utopia Node Agent*
 `;
-    await writeText(path.join(topicDir, 'reports', 'report.md'), reportContent);
+    await writeText(join(topicDir, 'reports', 'report.md'), reportContent);
   }
 
   console.log(`\n📁 Created ${criticalTopics.length} critical topic directories:`);
@@ -511,7 +511,7 @@ async function generateResearchReports(
   iteration: number
 ) {
   // Get existing topics to research
-  const topicDirs = await listDir(path.join(cwd, 'topics'));
+  const topicDirs = await listDir(join(cwd, 'topics'));
 
   for (const topicSlug of topicDirs.slice(0, 2)) {
     // Process 2 topics per cycle to avoid overwhelming
@@ -541,7 +541,7 @@ Make it thorough, well-researched, and actionable. Focus on data-driven insights
         modelName
       );
 
-      const reportPath = path.join(
+      const reportPath = join(
         cwd,
         'topics',
         topicSlug,
@@ -608,7 +608,7 @@ status: active_discovery
 *Generated by utopian trust network exploration*
 `;
 
-    const expandedTrustFile = path.join(cwd, 'trust', `expanded-network-${Date.now()}.yaml`);
+    const expandedTrustFile = join(cwd, 'trust', `expanded-network-${Date.now()}.yaml`);
     await writeText(expandedTrustFile, expandedTrustContent);
     console.log(`  🕸️  Expanded trust network: ${expandedTrustFile}`);
   } catch (error) {
@@ -653,10 +653,10 @@ Format as JSON with topic details.`;
     );
 
     // Create directory for discovered topics
-    const discoveryDir = path.join(cwd, 'topics', `emerging-${iteration}`);
+    const discoveryDir = join(cwd, 'topics', `emerging-${iteration}`);
     await ensureDir(discoveryDir);
 
-    const discoveryFile = path.join(discoveryDir, 'discovery.md');
+    const discoveryFile = join(discoveryDir, 'discovery.md');
     const discoveryContent = `# Emerging Topics Discovery - Cycle ${iteration}
 
 **Discovery Date**: ${new Date().toISOString()}
@@ -711,7 +711,7 @@ Focus on creating actionable insights that connect different challenge areas.`;
       modelName
     );
 
-    const synthesisFile = path.join(cwd, 'reports', `synthesis-${Date.now()}.md`);
+    const synthesisFile = join(cwd, 'reports', `synthesis-${Date.now()}.md`);
     const synthesisContent = `# Content Synthesis Report
 
 **Generated**: ${new Date().toISOString()}
@@ -730,7 +730,7 @@ Based on this synthesis, the following actions are recommended for maximum impac
 *Generated by utopian content synthesis*
 `;
 
-    await ensureDir(path.join(cwd, 'reports'));
+    await ensureDir(join(cwd, 'reports'));
     await writeText(synthesisFile, synthesisContent);
     console.log(`  🔄 Content synthesis: ${synthesisFile}`);
   } catch (error) {
@@ -767,7 +767,7 @@ Make it inspiring, data-driven, and focused on concrete actions people can take 
       modelName
     );
 
-    const mediaFile = path.join(cwd, 'media', `content-${iteration}-${Date.now()}.md`);
+    const mediaFile = join(cwd, 'media', `content-${iteration}-${Date.now()}.md`);
     const mediaContentFormatted = `# Media Content Package - Cycle ${iteration}
 
 **Generated**: ${new Date().toISOString()}
@@ -785,7 +785,7 @@ ${mediaContent}
 *Generated by utopian media generation cycle ${iteration}*
 `;
 
-    await ensureDir(path.join(cwd, 'media'));
+    await ensureDir(join(cwd, 'media'));
     await writeText(mediaFile, mediaContentFormatted);
     console.log(`  🎬 Media content: ${mediaFile}`);
   } catch (error) {

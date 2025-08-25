@@ -1,4 +1,4 @@
-// Simple OpenAI-compatible client for LM Studio
+// Simple OpenAI-compatible client for LM Studio (Deno version)
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -16,7 +16,7 @@ export interface ChatCompletionResponse {
 export class SimpleOpenAIClient {
   constructor(
     private baseURL: string = 'http://localhost:1234/v1',
-    private apiKey: string = process.env.OPENAI_API_KEY || 'lm-studio'
+    private apiKey: string = Deno.env.get('OPENAI_API_KEY') || 'lm-studio'
   ) {}
 
   async chat(messages: ChatMessage[], model: string = 'openai/gpt-oss-20b'): Promise<string> {
