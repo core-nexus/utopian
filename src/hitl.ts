@@ -1,5 +1,4 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import { join, dirname } from "jsr:@std/path";
 
 export async function hitl(
   step: string,
@@ -8,15 +7,18 @@ export async function hitl(
   message: string,
   auto = false
 ) {
-  const previewPath = path.join(cwd, '.utopia', 'hitl', `${previewRel}.md`);
-  await fs.mkdir(path.dirname(previewPath), { recursive: true });
-  await fs.writeFile(previewPath, `# HITL: ${step}\n\n${message}\n`);
+  const previewPath = join(cwd, '.utopia', 'hitl', `${previewRel}.md`);
+  await Deno.mkdir(dirname(previewPath), { recursive: true });
+  await Deno.writeTextFile(previewPath, `# HITL: ${step}\n\n${message}\n`);
 
-  if (auto || process.env.AUTO === '1') {
+  if (auto || Deno.env.get('AUTO') === '1') {
     console.log(`\n🔎 Auto-continuing ${step} (review ${previewPath})`);
     return;
   }
 
-  process.stdout.write(`\n🔎 Review ${previewPath}\nPress Enter to continue or Ctrl+C to abort… `);
-  await new Promise<void>(res => process.stdin.once('data', () => res()));
+  console.log(`\n🔎 Review ${previewPath}\nPress Enter to continue or Ctrl+C to abort…`);
+  
+  // Simple input reading in Deno
+  const buf = new Uint8Array(1024);
+  await Deno.stdin.read(buf);
 }

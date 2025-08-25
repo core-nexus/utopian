@@ -1,11 +1,11 @@
 import { generateText, tool } from 'ai';
 import { z } from 'zod';
 import { createOpenAI } from '@ai-sdk/openai';
-import path from 'node:path';
-import { ensureDir, readText, writeText, listDir, readYaml, writeYaml } from './tools/fsTools.js';
-import { runCmd } from './tools/systemTools.js';
-import { SYSTEM_PROMPT } from './prompts/system.js';
-import { hitl } from './hitl.js';
+import { join, dirname } from "jsr:@std/path";
+import { ensureDir, readText, writeText, listDir, readYaml, writeYaml } from './tools/fsTools.ts';
+import { runCmd } from './tools/systemTools.ts';
+import { SYSTEM_PROMPT } from './prompts/system.ts';
+import { hitl } from './hitl.ts';
 
 type KnownNodes = { nodes: Array<{ url: string; score?: number }> };
 
@@ -22,7 +22,7 @@ export async function runAgent(opts: AgentOptions) {
   const modelName = opts.model ?? 'openai/gpt-oss-20b'; // Default LM Studio model
 
   const openai = createOpenAI({
-    apiKey: process.env.LMSTUDIO_API_KEY ?? 'lm-studio',
+    apiKey: Deno.env.get('LMSTUDIO_API_KEY') ?? 'lm-studio',
     baseURL,
     compatibility: 'compatible', // Better compatibility with local models
   });
@@ -83,10 +83,10 @@ export async function runAgent(opts: AgentOptions) {
       add: z.array(z.object({ url: z.string(), score: z.number().optional() })).optional(),
     }),
     execute: async ({ add }: { add?: Array<{ url: string; score?: number }> }) => {
-      const p = path.join(cwd, 'trust', 'known_nodes.yaml');
+      const p = join(cwd, 'trust', 'known_nodes.yaml');
       const current = (await readYaml<KnownNodes>(p)) ?? { nodes: [] };
       if (add?.length) current.nodes.push(...add);
-      await ensureDir(path.dirname(p));
+      await ensureDir(dirname(p));
       await writeYaml(p, current);
       return p;
     },
@@ -110,7 +110,7 @@ paginate: true
 
 ${bullets.map((b: string) => `- ${b}`).join('\n')}
 `;
-      return writeText(path.join(cwd, out), md);
+      return writeText(join(cwd, out), md);
     },
   });
 
@@ -123,14 +123,14 @@ ${bullets.map((b: string) => `- ${b}`).join('\n')}
     }),
     execute: async ({ title, body, out }: { title: string; body: string; out: string }) => {
       const md = `# ${title}\n\n${body}\n`;
-      return writeText(path.join(cwd, out), md);
+      return writeText(join(cwd, out), md);
     },
   });
 
   // ---------- Initial context ----------
-  const goals = await readText(path.join(cwd, 'goals', 'README.md'));
-  const found = await readText(path.join(cwd, 'foundations', 'index.yaml'));
-  const trust = await readText(path.join(cwd, 'trust', 'known_nodes.yaml'));
+  const goals = await readText(join(cwd, 'goals', 'README.md'));
+  const found = await readText(join(cwd, 'foundations', 'index.yaml'));
+  const trust = await readText(join(cwd, 'trust', 'known_nodes.yaml'));
   const contextSummary = [
     `Repo present: ${!!(goals || found || trust)}`,
     goals ? '- goals present' : '- goals missing',
@@ -170,22 +170,23 @@ Ask for HITL checkpoints by outputting short notes (the host will pause between 
 
     // Log model text (status/plan) for the user
     if (result.text) {
-      process.stdout.write(`\n🧠 Model:\n${result.text}\n`);
+      console.log(`\n🧠 Model:\n${result.text}`);
     }
 
     // Execute tool calls (the SDK already executed them; we just show results)
     for (const call of result.toolCalls) {
       const r = result.toolResults.find(t => t.toolCallId === call.toolCallId);
-      process.stdout.write(`🔧 ${call.toolName} -> ${JSON.stringify(r)}\n`);
+      console.log(`🔧 ${call.toolName} -> ${JSON.stringify(r)}`);
     }
 
     // Simple "done" heuristic: if no tools called this turn, stop.
     if (result.toolCalls.length === 0) break;
 
     // HITL pause between turns (unless AUTO=1)
-    if (process.env.AUTO !== '1') {
-      process.stdout.write('\n⏸  HITL: press Enter to continue… ');
-      await new Promise<void>(res => process.stdin.once('data', () => res()));
+    if (Deno.env.get('AUTO') !== '1') {
+      console.log('\n⏸  HITL: press Enter to continue…');
+      const buf = new Uint8Array(1024);
+      await Deno.stdin.read(buf);
     }
 
     // Append a tiny "continue" message and loop
