@@ -11,7 +11,7 @@ tackle global challenges through AI-powered collaboration.**
 Run the Utopian CLI from any directory:
 
 ```bash
-deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
 ```
 
 Or clone and run locally:
@@ -91,7 +91,7 @@ challenges like climate change, digital rights, and health equity. Each node:
 ### Direct Usage (Recommended)
 
 ```bash
-deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
 ```
 
 ### Requirements
@@ -109,13 +109,13 @@ deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lm
 deno task start
 
 # Use with specific AI model
-deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lms mod.ts --model gpt-4
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --model gpt-4
 
 # Skip human-in-the-loop confirmations
-deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lms mod.ts --auto
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --auto
 
 # Use custom OpenAI-compatible endpoint
-deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lms mod.ts --base https://your-api.com/v1 --model your-model
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --base https://your-api.com/v1 --model your-model
 ```
 
 ### Command Options
@@ -273,7 +273,7 @@ This project is licensed under the Apache License 2.0 - see the
 **Ready to build the future?** Start your Utopia node today:
 
 ```bash
-deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
 ```
 
 _Together, we can tackle global challenges through decentralized collaboration
