@@ -1,11 +1,14 @@
 {
   "name": "utopian",
   "version": "0.1.11",
-  "description": "",
+  "description": "Utopia Node agent - Pure Deno implementation with security sandboxing",
   "keywords": [
-    "langgraph",
+    "deno",
     "ai",
-    "typescript"
+    "typescript",
+    "security",
+    "utopia",
+    "agent"
   ],
   "homepage": "https://github.com/core-nexus/utopian#readme",
   "bugs": {
@@ -18,20 +21,22 @@
   "license": "Apache-2.0",
   "author": "Harlan T Wood",
   "type": "module",
-  "main": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "dist/cli.js",
   "bin": {
     "utopian": "dist/cli.js"
   },
   "files": [
     "dist",
+    "mod.ts",
+    "deno.json",
+    "src",
     "README.md",
     "AGENTS.md"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "node scripts/build-npm-wrapper.js",
     "check-version": "pnpm view utopian version",
-    "dev": "tsx src/cli.ts",
+    "dev": "deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms mod.ts",
     "lint": "eslint \"src/**/*.{js,ts}\" --fix",
     "lint:check": "eslint \"src/**/*.{js,ts}\"",
     "fmt": "prettier -w .",
@@ -68,7 +73,6 @@
     "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
     "sort-package-json": "^3.4.0",
-    "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "vitest": "^2.0.0"
   },

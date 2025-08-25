@@ -1,20 +1,29 @@
 # 🌍 Utopian CLI
 
-**A powerful CLI for creating and managing decentralized Utopia nodes that tackle global challenges through AI-powered collaboration.**
+**A powerful CLI for creating and managing decentralized Utopia nodes that
+tackle global challenges through AI-powered collaboration.**
 
-[![npm version](https://img.shields.io/npm/v/utopian.svg)](https://www.npmjs.com/package/utopian)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+[![Deno](https://img.shields.io/badge/deno-v2.x-green.svg)](https://deno.land/)
 
 ## 🚀 Quick Start
 
 Run the Utopian CLI from any directory:
 
 ```bash
-npx utopian
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
+```
+
+Or clone and run locally:
+
+```bash
+git clone https://github.com/core-nexus/utopian.git
+cd utopian
+deno task start
 ```
 
 This command will:
+
 - **In a fresh directory**: Create a new Utopia node from scratch
 - **In an existing utopia-node repo**: Enhance and expand the existing node
 
@@ -33,9 +42,11 @@ This command will:
 
 ## 🌟 Overview
 
-Utopian creates **decentralized nodes** that collaborate to address global challenges like climate change, digital rights, and health equity. Each node:
+Utopian creates **decentralized nodes** that collaborate to address global
+challenges like climate change, digital rights, and health equity. Each node:
 
-- 🎯 **Focuses on critical global issues** with AI-generated research and solutions
+- 🎯 **Focuses on critical global issues** with AI-generated research and
+  solutions
 - 🤖 **Leverages AI** for continuous content generation and discovery
 - 🕸️ **Builds trust networks** with other nodes and organizations
 - 📊 **Generates comprehensive reports** with data-driven insights
@@ -45,24 +56,32 @@ Utopian creates **decentralized nodes** that collaborate to address global chall
 ## ✨ Features
 
 ### 🏗️ **Node Initialization**
-- Creates structured directories for goals, foundations, trust networks, and topics
-- Initializes with critical global challenges (climate, digital rights, health equity)
+
+- Creates structured directories for goals, foundations, trust networks, and
+  topics
+- Initializes with critical global challenges (climate, digital rights, health
+  equity)
 - Generates foundational documents and reports
 
 ### 🧠 **AI-Powered Content Generation**
-- **Research Reports**: Deep analysis of global challenges with statistics and solutions
-- **Trust Network Expansion**: Discovery of credible organizations and collaborators
+
+- **Research Reports**: Deep analysis of global challenges with statistics and
+  solutions
+- **Trust Network Expansion**: Discovery of credible organizations and
+  collaborators
 - **Topic Discovery**: Identification of emerging critical challenges
 - **Media Creation**: Presentation slides (Marp-compatible) and video scripts
 - **Content Synthesis**: Cross-topic analysis and strategic insights
 
 ### 🔄 **Continuous Generation Engine**
+
 - Runs unlimited cycles of content creation and research
 - Automatically discovers new topics and expands existing ones
 - Builds comprehensive knowledge bases over time
 - Creates actionable reports and media content
 
 ### 🤝 **Flexible AI Integration**
+
 - **OpenAI API**: Use GPT models with your API key
 - **Local Models**: LM Studio integration for privacy and cost control
 - **Auto-detection**: Automatically chooses the best available option
@@ -70,12 +89,14 @@ Utopian creates **decentralized nodes** that collaborate to address global chall
 ## 📦 Installation
 
 ### Direct Usage (Recommended)
+
 ```bash
-npx utopian@latest
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
 ```
 
 ### Requirements
-- **Node.js**: >= 18.0.0
+
+- **Deno**: >= 2.x
 - **Optional**: LM Studio for local AI models
 - **Optional**: OpenAI API key for GPT models
 
@@ -85,25 +106,25 @@ npx utopian@latest
 
 ```bash
 # Create or enhance a Utopia node
-npx utopian
+deno task start
 
 # Use with specific AI model
-npx utopian --model gpt-4
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --model gpt-4
 
 # Skip human-in-the-loop confirmations
-npx utopian --auto
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --auto
 
 # Use custom OpenAI-compatible endpoint
-npx utopian --base https://your-api.com/v1 --model your-model
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --base https://your-api.com/v1 --model your-model
 ```
 
 ### Command Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--base <url>` | OpenAI-compatible API base URL | Auto-detected |
-| `--model <name>` | Model name to use | Auto-detected |
-| `--auto` | Skip human confirmation prompts | `false` |
+| Option           | Description                     | Default       |
+| ---------------- | ------------------------------- | ------------- |
+| `--base <url>`   | OpenAI-compatible API base URL  | Auto-detected |
+| `--model <name>` | Model name to use               | Auto-detected |
+| `--auto`         | Skip human confirmation prompts | `false`       |
 
 ### AI Model Selection
 
@@ -164,9 +185,11 @@ utopia-node/
 ### Recommended Models
 
 **For Local/Free:**
+
 - **GPT-OSS-20B**: Good balance of performance and resource usage
 
 **For Production:**
+
 - **GPT-5** (OpenAI): Good quality and reasoning
 - **Claude 3** (Anthropic): Excellent for research and analysis
 
@@ -179,33 +202,40 @@ utopia-node/
 ## 🛠️ Development
 
 ### Setup
+
 ```bash
 git clone https://github.com/core-nexus/utopian.git
 cd utopian
-pnpm install
+
+# Install pre-commit hooks (optional)
+pip install pre-commit
+pre-commit install
 ```
 
 ### Scripts
+
 ```bash
-pnpm dev          # Run in development mode
-pnpm build        # Build for production
-pnpm lint         # Check code style
-pnpm fmt          # Format code
+deno task dev         # Run in development mode
+deno lint             # Check code style
+deno fmt              # Format code
+deno task test        # Run tests
 ```
 
 ### Project Commands
+
 ```bash
 # Test locally
-pnpm dev --help
+deno task start --help
 
-# Build and test CLI
-pnpm build
-./dist/cli.js --help
+# Check formatting and linting
+deno fmt --check
+deno lint
 ```
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [contribution guidelines](AGENTS.md) and:
+We welcome contributions! Please see our [contribution guidelines](AGENTS.md)
+and:
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
@@ -214,24 +244,28 @@ We welcome contributions! Please see our [contribution guidelines](AGENTS.md) an
 5. Open a Pull Request
 
 ### Code Style
+
 - Use TypeScript for all new code
-- Follow existing code formatting (Prettier)
-- Write tests for new functionality
+- Follow existing code formatting (`deno fmt`)
+- Write tests for new functionality (`deno test`)
 - Use conventional commits (`feat:`, `fix:`, `docs:`, etc.)
 
 ## 🌐 Related Projects
 
-- **[utopia-node](https://github.com/core-nexus/utopia-node)**: Reference implementation of a Utopia node
+- **[utopia-node](https://github.com/core-nexus/utopia-node)**: Reference
+  implementation of a Utopia node
 - **[CoreNexus](https://core.nexus)**: Core Utopia ecosystem projects
 
 ## 📄 License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the
+[LICENSE](LICENSE) file for details.
 
 ## 🙋 Support
 
 - **Issues**: [GitHub Issues](https://github.com/core-nexus/utopian/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/core-nexus/utopian/discussions)
+- **Discussions**:
+  [GitHub Discussions](https://github.com/core-nexus/utopian/discussions)
 - **Documentation**: [Project Wiki](https://github.com/core-nexus/utopian/wiki)
 
 ---
@@ -239,7 +273,8 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 **Ready to build the future?** Start your Utopia node today:
 
 ```bash
-npx utopian
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
 ```
 
-*Together, we can tackle global challenges through decentralized collaboration and AI-powered solutions.*
+_Together, we can tackle global challenges through decentralized collaboration
+and AI-powered solutions._

@@ -8,5 +8,4 @@ node_modules/
 .husky/
 # Config files that don't need formatting
 eslint.config.js
-tsup.config.ts
 .prettierrc

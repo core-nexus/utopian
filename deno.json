@@ -1,0 +1,29 @@
+{
+  "name": "@core-nexus/utopian",
+  "version": "0.1.11",
+  "exports": "./mod.ts",
+  "tasks": {
+    "start": "deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts",
+    "test": "deno test --allow-read --allow-write --allow-net --allow-env --allow-run --no-check"
+  },
+  "imports": {
+    "@std/cli": "jsr:@std/cli@^1.0.0",
+    "@std/path": "jsr:@std/path@^1.0.0",
+    "@std/yaml": "jsr:@std/yaml@^1.0.0"
+  },
+  "permissions": {
+    "read": ["."],
+    "write": ["."],
+    "net": true,
+    "env": true,
+    "run": ["lms"]
+  },
+  "fmt": {
+    "singleQuote": true
+  },
+  "test": {
+    "include": ["src/"],
+    "exclude": ["tmp/", "node_modules/", "dist/"]
+  },
+  "nodeModulesDir": "none"
+}

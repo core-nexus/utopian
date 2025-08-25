@@ -1,91 +1,98 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { ensureDir, readText, writeText, listDir, writeYaml } from '../tools/fsTools.js';
+import { join } from 'jsr:@std/path';
+import { assertEquals } from 'jsr:@std/assert';
+import {
+  ensureDir,
+  listDir,
+  readText,
+  writeText,
+  writeYaml,
+} from '../tools/fsTools.ts';
 
-describe('fsTools', () => {
-  let testDir: string;
+async function withTempDir(fn: (testDir: string) => Promise<void>) {
+  const testDir = await Deno.makeTempDir({ prefix: 'utopian-test-' });
+  try {
+    await fn(testDir);
+  } finally {
+    await Deno.remove(testDir, { recursive: true });
+  }
+}
 
-  beforeEach(async () => {
-    testDir = await mkdtemp(join(tmpdir(), 'utopian-test-'));
+Deno.test('ensureDir should create a directory if it does not exist', async () => {
+  await withTempDir(async (testDir) => {
+    const dirPath = join(testDir, 'new-dir');
+    await ensureDir(dirPath);
+
+    const dirs = await listDir(testDir);
+    assertEquals(dirs.includes('new-dir'), true);
   });
+});
 
-  afterEach(async () => {
-    await rm(testDir, { recursive: true, force: true });
+Deno.test('ensureDir should not fail if directory already exists', async () => {
+  await withTempDir(async (testDir) => {
+    const dirPath = join(testDir, 'existing-dir');
+    await ensureDir(dirPath);
+    await ensureDir(dirPath); // Second call should not fail
+
+    const dirs = await listDir(testDir);
+    assertEquals(dirs.includes('existing-dir'), true);
   });
+});
 
-  describe('ensureDir', () => {
-    it('should create a directory if it does not exist', async () => {
-      const dirPath = join(testDir, 'new-dir');
-      await ensureDir(dirPath);
+Deno.test('writeText and readText should work correctly', async () => {
+  await withTempDir(async (testDir) => {
+    const filePath = join(testDir, 'test.txt');
+    const content = 'Hello, World!';
 
-      const dirs = await listDir(testDir);
-      expect(dirs).toContain('new-dir');
-    });
+    await writeText(filePath, content);
+    const readContent = await readText(filePath);
 
-    it('should not fail if directory already exists', async () => {
-      const dirPath = join(testDir, 'existing-dir');
-      await ensureDir(dirPath);
-      await ensureDir(dirPath); // Second call should not fail
-
-      const dirs = await listDir(testDir);
-      expect(dirs).toContain('existing-dir');
-    });
+    assertEquals(readContent, content);
   });
+});
 
-  describe('writeText and readText', () => {
-    it('should write and read text files', async () => {
-      const filePath = join(testDir, 'test.txt');
-      const content = 'Hello, World!';
+Deno.test('readText should return undefined for non-existent files', async () => {
+  await withTempDir(async (testDir) => {
+    const filePath = join(testDir, 'nonexistent.txt');
+    const content = await readText(filePath);
 
-      await writeText(filePath, content);
-      const readContent = await readText(filePath);
-
-      expect(readContent).toBe(content);
-    });
-
-    it('should return undefined for non-existent files', async () => {
-      const filePath = join(testDir, 'nonexistent.txt');
-      const content = await readText(filePath);
-
-      expect(content).toBeUndefined();
-    });
+    assertEquals(content, undefined);
   });
+});
 
-  describe('writeYaml', () => {
-    it('should write YAML content to file', async () => {
-      const filePath = join(testDir, 'test.yaml');
-      const data = { name: 'test', version: '1.0.0' };
+Deno.test('writeYaml should write YAML content to file', async () => {
+  await withTempDir(async (testDir) => {
+    const filePath = join(testDir, 'test.yaml');
+    const data = { name: 'test', version: '1.0.0' };
 
-      await writeYaml(filePath, data);
-      const content = await readText(filePath);
+    await writeYaml(filePath, data);
+    const content = await readText(filePath);
 
-      expect(content).toContain('name: test');
-      expect(content).toContain('version: 1.0.0');
-    });
+    assertEquals(content?.includes('name: test'), true);
+    assertEquals(content?.includes('version: 1.0.0'), true);
   });
+});
 
-  describe('listDir', () => {
-    it('should list directory contents', async () => {
-      await writeText(join(testDir, 'file1.txt'), 'content1');
-      await writeText(join(testDir, 'file2.txt'), 'content2');
-      await ensureDir(join(testDir, 'subdir'));
+Deno.test('listDir should list directory contents', async () => {
+  await withTempDir(async (testDir) => {
+    await writeText(join(testDir, 'file1.txt'), 'content1');
+    await writeText(join(testDir, 'file2.txt'), 'content2');
+    await ensureDir(join(testDir, 'subdir'));
 
-      const contents = await listDir(testDir);
+    const contents = await listDir(testDir);
 
-      expect(contents).toContain('file1.txt');
-      expect(contents).toContain('file2.txt');
-      expect(contents).toContain('subdir');
-    });
+    assertEquals(contents.includes('file1.txt'), true);
+    assertEquals(contents.includes('file2.txt'), true);
+    assertEquals(contents.includes('subdir'), true);
+  });
+});
 
-    it('should return empty array for empty directory', async () => {
-      const emptyDir = join(testDir, 'empty');
-      await ensureDir(emptyDir);
+Deno.test('listDir should return empty array for empty directory', async () => {
+  await withTempDir(async (testDir) => {
+    const emptyDir = join(testDir, 'empty');
+    await ensureDir(emptyDir);
 
-      const contents = await listDir(emptyDir);
+    const contents = await listDir(emptyDir);
 
-      expect(contents).toEqual([]);
-    });
+    assertEquals(contents, []);
   });
 });
