@@ -45,9 +45,11 @@ async function main() {
   // Find the mod.ts file (it should be in the package root)
   const modPath = join(__dirname, '..', 'mod.ts');
   
-  // Spawn Deno with the proper permissions and forward all arguments
+  // Use --no-check to skip type checking for node_modules files
+  // This prevents the type stripping error when running from npm
   const denoArgs = [
     'run',
+    '--no-check', // Skip type checking to avoid type stripping issues
     '--allow-read=.',
     '--allow-write=.',
     '--allow-net=127.0.0.1,api.openai.com,localhost:1234',
