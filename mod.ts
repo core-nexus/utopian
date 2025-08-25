@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms
 
-import { parseArgs } from "jsr:@std/cli/parse-args";
+import { parseArgs } from 'jsr:@std/cli/parse-args';
 import { runSimpleAgent } from './src/simple-agent.ts';
 
 interface Args {
@@ -30,8 +30,8 @@ async function main() {
     string: ['base', 'model'],
     boolean: ['auto', 'help'],
     alias: {
-      h: 'help'
-    }
+      h: 'help',
+    },
   }) as Args;
 
   if (args.help) {
@@ -43,9 +43,11 @@ async function main() {
   const lmstudioBaseUrl = Deno.env.get('LMSTUDIO_BASE_URL');
   const lmstudioModel = Deno.env.get('LMSTUDIO_MODEL');
 
-  const baseURL = args.base || 
-    (openaiApiKey ? 'https://api.openai.com/v1' : lmstudioBaseUrl || 'http://localhost:1234/v1');
-  
+  const baseURL = args.base ||
+    (openaiApiKey
+      ? 'https://api.openai.com/v1'
+      : lmstudioBaseUrl || 'http://localhost:1234/v1');
+
   const model = args.model ||
     (openaiApiKey ? 'gpt-5' : lmstudioModel || 'openai/gpt-oss-20b');
 
@@ -56,14 +58,14 @@ async function main() {
       const cmd = new Deno.Command('lms', {
         args: ['server', 'start'],
         stdout: 'piped',
-        stderr: 'piped'
+        stderr: 'piped',
       });
       await cmd.output();
-      
+
       const statusCmd = new Deno.Command('lms', {
         args: ['status'],
         stdout: 'piped',
-        stderr: 'piped'
+        stderr: 'piped',
       });
       await statusCmd.output();
     } catch {
@@ -80,7 +82,7 @@ async function main() {
 }
 
 if (import.meta.main) {
-  main().catch(err => {
+  main().catch((err) => {
     console.error('❌ utopian error:', err);
     Deno.exit(1);
   });

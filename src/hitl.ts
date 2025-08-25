@@ -1,11 +1,11 @@
-import { join, dirname } from "jsr:@std/path";
+import { dirname, join } from 'jsr:@std/path';
 
 export async function hitl(
   step: string,
   cwd: string,
   previewRel: string,
   message: string,
-  auto = false
+  auto = false,
 ) {
   const previewPath = join(cwd, '.utopia', 'hitl', `${previewRel}.md`);
   await Deno.mkdir(dirname(previewPath), { recursive: true });
@@ -16,8 +16,10 @@ export async function hitl(
     return;
   }
 
-  console.log(`\n🔎 Review ${previewPath}\nPress Enter to continue or Ctrl+C to abort…`);
-  
+  console.log(
+    `\n🔎 Review ${previewPath}\nPress Enter to continue or Ctrl+C to abort…`,
+  );
+
   // Simple input reading in Deno
   const buf = new Uint8Array(1024);
   await Deno.stdin.read(buf);

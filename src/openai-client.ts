@@ -16,10 +16,13 @@ export interface ChatCompletionResponse {
 export class SimpleOpenAIClient {
   constructor(
     private baseURL: string = 'http://localhost:1234/v1',
-    private apiKey: string = Deno.env.get('OPENAI_API_KEY') || 'lm-studio'
+    private apiKey: string = Deno.env.get('OPENAI_API_KEY') || 'lm-studio',
   ) {}
 
-  async chat(messages: ChatMessage[], model: string = 'openai/gpt-oss-20b'): Promise<string> {
+  async chat(
+    messages: ChatMessage[],
+    model: string = 'openai/gpt-oss-20b',
+  ): Promise<string> {
     const response = await fetch(`${this.baseURL}/chat/completions`, {
       method: 'POST',
       headers: {

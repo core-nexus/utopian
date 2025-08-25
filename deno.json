@@ -3,8 +3,8 @@
   "version": "0.1.11",
   "exports": "./mod.ts",
   "tasks": {
-    "dev": "deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms mod.ts",
-    "start": "deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms mod.ts"
+    "dev": "deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lms mod.ts",
+    "start": "deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lms mod.ts"
   },
   "imports": {
     "@std/cli": "jsr:@std/cli@^1.0.0",
@@ -14,8 +14,11 @@
   "permissions": {
     "read": ["."],
     "write": ["."],
-    "net": ["127.0.0.1", "api.openai.com", "localhost:1234"],
+    "net": "*",
     "env": true,
     "run": ["lms"]
+  },
+  "fmt": {
+    "singleQuote": true
   }
 }

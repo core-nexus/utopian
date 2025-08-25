@@ -1,5 +1,5 @@
-import { join, dirname } from "jsr:@std/path";
-import { stringify, parse } from "jsr:@std/yaml";
+import { dirname, join } from 'jsr:@std/path';
+import { parse, stringify } from 'jsr:@std/yaml';
 
 export async function ensureDir(p: string) {
   await Deno.mkdir(p, { recursive: true });
@@ -37,7 +37,7 @@ export async function readYaml<T = unknown>(p: string): Promise<T | undefined> {
   return parse(txt) as T;
 }
 
-export async function writeYaml(p: string, obj: unknown) {
+export function writeYaml(p: string, obj: unknown) {
   const txt = stringify(obj);
   return writeText(p, txt);
 }

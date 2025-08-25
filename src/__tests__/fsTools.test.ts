@@ -1,8 +1,14 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { ensureDir, readText, writeText, listDir, writeYaml } from '../tools/fsTools.js';
+import {
+  ensureDir,
+  listDir,
+  readText,
+  writeText,
+  writeYaml,
+} from '../tools/fsTools.js';
 
 describe('fsTools', () => {
   let testDir: string;

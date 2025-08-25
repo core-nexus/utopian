@@ -1,27 +1,29 @@
-import { defineConfig } from "tsup";
+import { defineConfig } from 'tsup';
 
 export default defineConfig([
   // CLI build (ESM only, no shebang - npm handles it)
   {
-    entry: ["src/cli.ts"],
-    format: ["esm"],
-    target: "node18",
+    entry: ['src/cli.ts'],
+    format: ['esm'],
+    target: 'node18',
     sourcemap: true,
     clean: true,
     minify: false,
-    outExtension() { return { js: ".js" }; }
+    outExtension() {
+      return { js: '.js' };
+    },
   },
   // Library build (both ESM and CJS)
   {
-    entry: ["src/index.ts"],
-    format: ["esm", "cjs"],
-    target: "node18",
+    entry: ['src/index.ts'],
+    format: ['esm', 'cjs'],
+    target: 'node18',
     sourcemap: true,
     clean: false,
     dts: false, // Disable for now due to AI SDK typing complexity
     minify: false,
     outExtension({ format }) {
-      return { js: format === "esm" ? ".mjs" : ".js" };
-    }
-  }
+      return { js: format === 'esm' ? '.mjs' : '.js' };
+    },
+  },
 ]);

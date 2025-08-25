@@ -1,5 +1,5 @@
 // Library exports - AI Agent functionality
-export { runAgent, type AgentOptions } from './agent.ts';
+export { type AgentOptions, runAgent } from './agent.ts';
 export * from './tools/fsTools.ts';
 export * from './tools/systemTools.ts';
 export { hitl } from './hitl.ts';

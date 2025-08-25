@@ -1,8 +1,15 @@
 import { generateText, tool } from 'ai';
 import { z } from 'zod';
 import { createOpenAI } from '@ai-sdk/openai';
-import { join, dirname } from "jsr:@std/path";
-import { ensureDir, readText, writeText, listDir, readYaml, writeYaml } from './tools/fsTools.ts';
+import { dirname, join } from 'jsr:@std/path';
+import {
+  ensureDir,
+  listDir,
+  readText,
+  readYaml,
+  writeText,
+  writeYaml,
+} from './tools/fsTools.ts';
 import { runCmd } from './tools/systemTools.ts';
 import { SYSTEM_PROMPT } from './prompts/system.ts';
 import { hitl } from './hitl.ts';
@@ -44,7 +51,8 @@ export async function runAgent(opts: AgentOptions) {
   const list = tool({
     description: 'List directory entries',
     parameters: z.object({ path: z.string() }),
-    execute: async ({ path }: { path: string }) => (await listDir(path)).join('\n'),
+    execute: async ({ path }: { path: string }) =>
+      (await listDir(path)).join('\n'),
   });
 
   const ensure = tool({
@@ -60,7 +68,9 @@ export async function runAgent(opts: AgentOptions) {
     description: 'Compile Marp slides to dist/ (PDF/HTML)',
     parameters: z.object({ pattern: z.string().default('slides/*.md') }),
     execute: async ({ pattern }: { pattern: string }) =>
-      await runCmd('marp', [pattern, '-o', 'dist', '--allow-local-files'], { cwd }),
+      await runCmd('marp', [pattern, '-o', 'dist', '--allow-local-files'], {
+        cwd,
+      }),
   });
 
   const git = tool({
@@ -80,9 +90,12 @@ export async function runAgent(opts: AgentOptions) {
   const trustNodes = tool({
     description: 'Read and update trust/known_nodes.yaml',
     parameters: z.object({
-      add: z.array(z.object({ url: z.string(), score: z.number().optional() })).optional(),
+      add: z.array(z.object({ url: z.string(), score: z.number().optional() }))
+        .optional(),
     }),
-    execute: async ({ add }: { add?: Array<{ url: string; score?: number }> }) => {
+    execute: async (
+      { add }: { add?: Array<{ url: string; score?: number }> },
+    ) => {
       const p = join(cwd, 'trust', 'known_nodes.yaml');
       const current = (await readYaml<KnownNodes>(p)) ?? { nodes: [] };
       if (add?.length) current.nodes.push(...add);
@@ -99,7 +112,13 @@ export async function runAgent(opts: AgentOptions) {
       bullets: z.array(z.string()),
       out: z.string().default('slides/overview.md'),
     }),
-    execute: async ({ title, bullets, out }: { title: string; bullets: string[]; out: string }) => {
+    execute: (
+      { title, bullets, out }: {
+        title: string;
+        bullets: string[];
+        out: string;
+      },
+    ) => {
       const md = `---
 marp: true
 title: ${title}
@@ -121,7 +140,9 @@ ${bullets.map((b: string) => `- ${b}`).join('\n')}
       body: z.string(),
       out: z.string().default('reports/utopia-report.md'),
     }),
-    execute: async ({ title, body, out }: { title: string; body: string; out: string }) => {
+    execute: (
+      { title, body, out }: { title: string; body: string; out: string },
+    ) => {
       const md = `# ${title}\n\n${body}\n`;
       return writeText(join(cwd, out), md);
     },
@@ -165,7 +186,17 @@ Ask for HITL checkpoints by outputting short notes (the host will pause between 
     const result = await generateText({
       model: openai(modelName),
       messages,
-      tools: { readFile, writeFile, list, ensure, marp, git, trustNodes, makeSlides, writeReport },
+      tools: {
+        readFile,
+        writeFile,
+        list,
+        ensure,
+        marp,
+        git,
+        trustNodes,
+        makeSlides,
+        writeReport,
+      },
     });
 
     // Log model text (status/plan) for the user
@@ -175,7 +206,9 @@ Ask for HITL checkpoints by outputting short notes (the host will pause between 
 
     // Execute tool calls (the SDK already executed them; we just show results)
     for (const call of result.toolCalls) {
-      const r = result.toolResults.find(t => t.toolCallId === call.toolCallId);
+      const r = result.toolResults.find((t) =>
+        t.toolCallId === call.toolCallId
+      );
       console.log(`🔧 ${call.toolName} -> ${JSON.stringify(r)}`);
     }
 
@@ -190,7 +223,10 @@ Ask for HITL checkpoints by outputting short notes (the host will pause between 
     }
 
     // Append a tiny "continue" message and loop
-    messages.push({ role: 'user', content: 'Continue. If main artifacts exist, finalize.' });
+    messages.push({
+      role: 'user',
+      content: 'Continue. If main artifacts exist, finalize.',
+    });
   }
 
   // Final checkpoint

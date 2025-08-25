@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import process from 'node:process';
 
 // Mock the simple-agent module
 vi.mock('../simple-agent.js', () => ({
@@ -24,7 +25,7 @@ describe('CLI', () => {
       // Test the Commander.js configuration
       const expectedOptions = ['--base', '--model', '--auto'];
 
-      expectedOptions.forEach(option => {
+      expectedOptions.forEach((option) => {
         expect(option).toMatch(/^--\w+/);
       });
     });
