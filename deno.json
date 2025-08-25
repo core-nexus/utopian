@@ -3,7 +3,6 @@
   "version": "0.1.11",
   "exports": "./mod.ts",
   "tasks": {
-    "dev": "deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts",
     "start": "deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts",
     "test": "deno test --allow-read --allow-write --allow-net --allow-env --allow-run --no-check"
   },
