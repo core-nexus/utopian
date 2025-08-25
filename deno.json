@@ -1,5 +1,5 @@
 {
-  "name": "@core-nexus/utopian",
+  "name": "@utopian/utopian",
   "version": "0.1.11",
   "exports": "./mod.ts",
   "tasks": {
