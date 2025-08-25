@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms
 
-import { parseArgs } from 'jsr:@std/cli/parse-args';
+import { parseArgs } from 'jsr:@std/cli@1.0.21/parse-args';
 import { runSimpleAgent } from './src/simple-agent.ts';
 
 interface Args {

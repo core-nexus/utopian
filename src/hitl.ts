@@ -1,4 +1,4 @@
-import { dirname, join } from 'jsr:@std/path';
+import { dirname, join } from 'jsr:@std/path@1.1.2';
 
 export async function hitl(
   step: string,

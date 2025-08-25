@@ -1,5 +1,5 @@
-import { dirname, join } from 'jsr:@std/path';
-import { parse, stringify } from 'jsr:@std/yaml';
+import { dirname, join } from 'jsr:@std/path@1.1.2';
+import { parse, stringify } from 'jsr:@std/yaml@1.0.9';
 
 export async function ensureDir(p: string) {
   await Deno.mkdir(p, { recursive: true });

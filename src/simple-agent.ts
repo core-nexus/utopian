@@ -1,4 +1,4 @@
-import { join } from 'jsr:@std/path';
+import { join } from 'jsr:@std/path@1.1.2';
 import { type ChatMessage, SimpleOpenAIClient } from './openai-client.ts';
 import {
   ensureDir,
