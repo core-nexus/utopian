@@ -218,7 +218,7 @@ pre-commit install
 deno task dev         # Run in development mode
 deno lint             # Check code style
 deno fmt              # Format code
-deno test             # Run tests
+deno task test        # Run tests
 ```
 
 ### Project Commands

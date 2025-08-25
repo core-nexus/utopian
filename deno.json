@@ -4,7 +4,8 @@
   "exports": "./mod.ts",
   "tasks": {
     "dev": "deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lms mod.ts",
-    "start": "deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lms mod.ts"
+    "start": "deno run --allow-read=. --allow-write=. --allow-net=* --allow-env --allow-run=lms mod.ts",
+    "test": "deno test --allow-read --allow-write --allow-net --allow-env --allow-run --no-check"
   },
   "imports": {
     "@std/cli": "jsr:@std/cli@^1.0.0",
@@ -20,5 +21,10 @@
   },
   "fmt": {
     "singleQuote": true
-  }
+  },
+  "test": {
+    "include": ["src/"],
+    "exclude": ["tmp/", "node_modules/", "dist/"]
+  },
+  "nodeModulesDir": "none"
 }

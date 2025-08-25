@@ -22,7 +22,7 @@ jobs:
         run: deno lint
 
       - name: Run tests
-        run: deno test --allow-read --allow-write --allow-net --allow-env --allow-run --no-check
+        run: deno task test
 
       - name: Test CLI
         run: deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --help

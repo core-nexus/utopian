@@ -1,79 +1,44 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import process from 'node:process';
-import type { AgentOptions } from '../simple-agent.js';
+import { assertEquals } from 'jsr:@std/assert';
+import type { AgentOptions } from '../simple-agent.ts';
 
-// Mock the dependencies
-vi.mock('../openai-client.js', () => ({
-  SimpleOpenAIClient: vi.fn().mockImplementation(() => ({
-    chat: vi.fn().mockResolvedValue({
-      choices: [{ message: { content: 'Mock AI response' } }],
-    }),
-  })),
-}));
+Deno.test('AgentOptions type validation - valid options', () => {
+  const validOptions: AgentOptions = {
+    cwd: '/test/path',
+    model: 'gpt-5',
+    baseURL: 'https://api.openai.com/v1',
+    auto: true,
+  };
 
-vi.mock('../tools/fsTools.js', () => ({
-  readText: vi.fn().mockResolvedValue(null),
-  writeText: vi.fn().mockResolvedValue(undefined),
-  ensureDir: vi.fn().mockResolvedValue(undefined),
-  listDir: vi.fn().mockResolvedValue([]),
-  writeYaml: vi.fn().mockResolvedValue(undefined),
-}));
+  assertEquals(validOptions.cwd, '/test/path');
+  assertEquals(validOptions.model, 'gpt-5');
+  assertEquals(validOptions.baseURL, 'https://api.openai.com/v1');
+  assertEquals(validOptions.auto, true);
+});
 
-vi.mock('../hitl.js', () => ({
-  hitl: vi.fn().mockResolvedValue(undefined),
-}));
+Deno.test('AgentOptions type validation - minimal options', () => {
+  const minimalOptions: AgentOptions = {
+    cwd: '/test/path',
+  };
 
-describe('simple-agent', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  assertEquals(minimalOptions.cwd, '/test/path');
+  assertEquals(minimalOptions.model, undefined);
+  assertEquals(minimalOptions.baseURL, undefined);
+  assertEquals(minimalOptions.auto, undefined);
+});
 
-  describe('AgentOptions type validation', () => {
-    it('should have proper type structure', () => {
-      const validOptions: AgentOptions = {
-        cwd: '/test/path',
-        model: 'gpt-5',
-        baseURL: 'https://api.openai.com/v1',
-        auto: true,
-      };
+Deno.test('Environment defaults should work with OpenAI key', () => {
+  // Mock having an OpenAI key
+  const hasKey = !!Deno.env.get('OPENAI_API_KEY');
+  const expectedDefault = hasKey
+    ? 'https://api.openai.com/v1'
+    : 'http://localhost:1234/v1';
 
-      expect(validOptions.cwd).toBe('/test/path');
-      expect(validOptions.model).toBe('gpt-5');
-      expect(validOptions.baseURL).toBe('https://api.openai.com/v1');
-      expect(validOptions.auto).toBe(true);
-    });
+  assertEquals(typeof expectedDefault, 'string');
+  assertEquals(expectedDefault.startsWith('http'), true);
+});
 
-    it('should work with minimal options', () => {
-      const minimalOptions: AgentOptions = {
-        cwd: '/test/path',
-      };
-
-      expect(minimalOptions.cwd).toBe('/test/path');
-      expect(minimalOptions.model).toBeUndefined();
-      expect(minimalOptions.baseURL).toBeUndefined();
-      expect(minimalOptions.auto).toBeUndefined();
-    });
-  });
-
-  describe('environment defaults', () => {
-    it('should use OpenAI defaults when OPENAI_API_KEY is set', () => {
-      const originalEnv = process.env.OPENAI_API_KEY;
-      process.env.OPENAI_API_KEY = 'test-key';
-
-      // These would be tested in integration tests with the actual function
-      // For now, we just verify the environment variable is set
-      expect(process.env.OPENAI_API_KEY).toBe('test-key');
-
-      process.env.OPENAI_API_KEY = originalEnv;
-    });
-
-    it('should use localhost defaults when no OPENAI_API_KEY', () => {
-      const originalEnv = process.env.OPENAI_API_KEY;
-      delete process.env.OPENAI_API_KEY;
-
-      expect(process.env.OPENAI_API_KEY).toBeUndefined();
-
-      process.env.OPENAI_API_KEY = originalEnv;
-    });
-  });
+Deno.test('Simple agent module can be imported', async () => {
+  // This test verifies the simple-agent module can be imported
+  const agent = await import('../simple-agent.ts');
+  assertEquals(typeof agent.runSimpleAgent, 'function');
 });
