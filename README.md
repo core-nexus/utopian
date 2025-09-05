@@ -77,10 +77,10 @@ challenges like climate change, digital rights, and health equity. Each node:
 
 ### 🔄 **Continuous Generation Engine**
 
-- Runs unlimited cycles of content creation and research
+- Runs fully automated cycles of content creation and research
 - Automatically discovers new topics and expands existing ones
 - Builds comprehensive knowledge bases over time
-- Creates actionable reports and media content
+- Creates actionable reports and media content without manual intervention
 
 ### 🤝 **Flexible AI Integration**
 
@@ -114,9 +114,6 @@ deno task start
 # Use with specific AI model
 deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash mod.ts --model gpt-4
 
-# Skip human-in-the-loop confirmations
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash mod.ts --auto
-
 # Use custom OpenAI-compatible endpoint
 deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash mod.ts --base https://your-api.com/v1 --model your-model
 ```
@@ -127,7 +124,6 @@ deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,
 | ---------------- | ------------------------------- | ------------- |
 | `--base <url>`   | OpenAI-compatible API base URL  | Auto-detected |
 | `--model <name>` | Model name to use               | Auto-detected |
-| `--auto`         | Skip human confirmation prompts | `false`       |
 
 ### AI Model Selection
 
@@ -204,7 +200,7 @@ utopia-node/
 
 - **Larger models** (70B+) produce better research and insights
 - **Local models** provide privacy and cost control
-- Use `--auto` flag for unattended operation with any model
+- Agent runs automatically without manual intervention
 
 ## 🛠️ Development
 

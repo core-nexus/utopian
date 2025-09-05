@@ -3,13 +3,11 @@ import { type ChatMessage, SimpleOpenAIClient } from './openai-client.ts';
 import { ensureDir, listDir, readText, writeText, writeYaml } from './tools/fsTools.ts';
 import { checkMfluxAvailable, generateImage, setupMfluxEnvironment } from './tools/systemTools.ts';
 import { SYSTEM_PROMPT } from './prompts/system.ts';
-import { hitl } from './hitl.ts';
 
 export type AgentOptions = {
   cwd: string;
   model?: string;
   baseURL?: string;
-  auto?: boolean;
 };
 
 export async function runSimpleAgent(opts: AgentOptions) {
@@ -56,8 +54,6 @@ export async function runSimpleAgent(opts: AgentOptions) {
     trust ? '- trust present' : '- trust missing',
   ].join('\n');
 
-  // Optional HITL at the start to confirm plan
-  await hitl('planning', cwd, '01-planning', contextSummary, opts.auto);
 
   // Create the basic structure first
   await createBasicStructure(cwd);
