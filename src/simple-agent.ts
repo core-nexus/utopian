@@ -863,8 +863,8 @@ Based on this synthesis, the following actions are recommended for maximum impac
 
 async function generateContentImages(
   cwd: string,
-  _client: SimpleOpenAIClient,
-  _modelName: string,
+  client: SimpleOpenAIClient,
+  modelName: string,
   mfluxAvailable: boolean,
 ) {
   if (!mfluxAvailable) {
@@ -874,32 +874,16 @@ async function generateContentImages(
     return;
   }
 
-  const imagePrompts = [
-    {
-      name: 'climate-action-hero',
-      prompt:
-        'renewable energy landscape, solar panels and wind turbines against blue sky, inspiring sustainable future, photorealistic, high quality, hopeful mood',
-      path: 'media/images/climate-action-hero.png',
-    },
-    {
-      name: 'digital-rights-network',
-      prompt:
-        'interconnected digital network with privacy shields, cybersecurity elements, data protection visualization, modern tech aesthetic, blue and green colors',
-      path: 'media/images/digital-rights-network.png',
-    },
-    {
-      name: 'global-health-unity',
-      prompt:
-        'diverse group of healthcare workers and community members, medical care symbols, global collaboration, warm lighting, inclusive and hopeful',
-      path: 'media/images/global-health-unity.png',
-    },
-    {
-      name: 'collaboration-network',
-      prompt:
-        'abstract visualization of connected nodes and networks, representing collaboration and partnership, clean minimalist design, vibrant connecting lines',
-      path: 'media/images/collaboration-network.png',
-    },
-  ];
+  console.log('  🤖 Generating contextual image prompts with AI...');
+  
+  // Get existing content to inform image generation
+  const existingContent = await gatherContentForImageGeneration(cwd);
+  
+  const imagePrompts = await generateImagePrompts(
+    client,
+    modelName,
+    existingContent,
+  );
 
   await ensureDir(join(cwd, 'media', 'images'));
 
@@ -921,6 +905,119 @@ async function generateContentImages(
       console.error(`  ❌ Failed to generate ${imageSpec.name}:`, error);
     }
   }
+}
+
+async function gatherContentForImageGeneration(cwd: string): Promise<string> {
+  const content: string[] = [];
+  
+  try {
+    // Get topic overviews
+    const topicsPath = join(cwd, 'topics');
+    const topicDirs = await listDir(topicsPath);
+    
+    for (const topicDir of topicDirs.slice(0, 3)) { // Limit to avoid overwhelming context
+      const overviewPath = join(topicsPath, topicDir, 'docs', 'overview.md');
+      const overview = await readText(overviewPath);
+      if (overview) {
+        content.push(`=== ${topicDir.toUpperCase()} ===`);
+        content.push(overview.substring(0, 500)); // First 500 chars
+      }
+    }
+    
+    // Get recent reports
+    const reportsPath = join(cwd, 'reports');
+    const reports = await listDir(reportsPath);
+    for (const reportFile of reports.slice(-2)) { // Last 2 reports
+      if (reportFile.endsWith('.md')) {
+        const report = await readText(join(reportsPath, reportFile));
+        if (report) {
+          content.push(`=== REPORT: ${reportFile} ===`);
+          content.push(report.substring(0, 300)); // First 300 chars
+        }
+      }
+    }
+  } catch (_error) {
+    console.log('  ⚠️  Could not gather existing content, using minimal context');
+    content.push('Global challenges requiring urgent action and collaboration');
+  }
+  
+  return content.join('\n\n');
+}
+
+async function generateImagePrompts(
+  client: SimpleOpenAIClient,
+  modelName: string,
+  contentContext: string,
+): Promise<Array<{ name: string; prompt: string; path: string }>> {
+  const promptGenerationPrompt = `Based on the following content about global challenges and solutions, generate 4-6 diverse, compelling image prompts for visual content creation.
+
+CONTENT CONTEXT:
+${contentContext}
+
+REQUIREMENTS:
+- Create prompts that will generate powerful, inspiring visuals
+- Focus on hope, action, collaboration, and positive change
+- Include diverse perspectives and global representation  
+- Mix abstract concepts with concrete imagery
+- Ensure prompts work well for presentations and social media
+- Each prompt should be 15-25 words for optimal image generation
+
+OUTPUT FORMAT (JSON):
+[
+  {
+    "name": "descriptive-filename",
+    "prompt": "detailed visual description optimized for image generation",
+    "path": "media/images/descriptive-filename.png"
+  }
+]
+
+STYLE GUIDELINES:
+- Use words like: photorealistic, high quality, professional, inspiring, hopeful
+- Include lighting: warm lighting, golden hour, soft natural light
+- Specify composition: wide shot, close-up, aerial view, etc.
+- Add mood: uplifting, collaborative, determined, peaceful
+- Mention colors when relevant: vibrant, earth tones, blue and green
+
+Generate images that will make people feel motivated to take action on global challenges.`;
+
+  try {
+    const response = await client.chat([
+      {
+        role: 'system',
+        content: 'You are an expert prompt engineer specializing in creating compelling image generation prompts that inspire action on global challenges.',
+      },
+      { role: 'user', content: promptGenerationPrompt },
+    ], modelName);
+
+    // Try to parse JSON from response
+    const jsonMatch = response.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      const imagePrompts = JSON.parse(jsonMatch[0]);
+      console.log(`  ✅ Generated ${imagePrompts.length} contextual image prompts`);
+      return imagePrompts;
+    }
+  } catch (error) {
+    console.error('  ⚠️  Failed to generate custom prompts, using fallback:', error);
+  }
+
+  // Fallback prompts if LLM generation fails
+  return [
+    {
+      name: 'global-collaboration',
+      prompt: 'diverse hands reaching together forming circle, unity and cooperation, warm golden lighting, hopeful and inspiring, photorealistic, high quality',
+      path: 'media/images/global-collaboration.png',
+    },
+    {
+      name: 'sustainable-future',
+      prompt: 'clean energy landscape with solar panels wind turbines, bright blue sky, green technology, sustainable development, optimistic mood, professional photography',
+      path: 'media/images/sustainable-future.png',
+    },
+    {
+      name: 'digital-equity',
+      prompt: 'interconnected network of diverse people using technology, digital inclusion, connectivity symbols, modern aesthetic, blue and green colors, inspiring',
+      path: 'media/images/digital-equity.png',
+    },
+  ];
 }
 
 async function generateMediaContent(
