@@ -172,12 +172,32 @@ ${bullets.map((b: string) => `- ${b}`).join('\n')}
 Context:
 ${contextSummary}
 
-If something is missing, propose a minimal plan and then use tools to create:
-- reports/utopia-report.md (high-level)
-- slides/overview.md (Marp) then compile
-- trust/known_nodes.yaml (ensure exists; seed with at least core-nexus/utopia)
+CREATE A LIVING WEB OF INTERCONNECTED KNOWLEDGE:
 
-Ask for HITL checkpoints by outputting short notes (the host will pause between iterations).`,
+ESSENTIAL STRUCTURE (create/enhance these with rich cross-references):
+- index.md: Comprehensive navigation hub with status dashboard, interconnection map, and multiple entry points
+- reports/utopia-report.md: Enhanced operational status with partnership analysis and strategic intelligence
+- reports/synthesis-[timestamp].md: Deep cross-topic analysis identifying collaboration opportunities and patterns
+- slides/overview.md (Marp): Rich presentation with cross-references, then compile
+- trust/known_nodes.yaml: Ensure exists, seed with core-nexus/utopia, analyze for strategic connections
+- goals/README.md: Connect strategic objectives explicitly to trust relationships and collaboration opportunities
+
+LIVING WEB CREATION APPROACH:
+- Look for existing content to enhance with richer analysis and natural cross-links
+- Create meaningful cross-references when content naturally connects using [link text](./path/to/file.md)
+- Consider bidirectional relationships where they make sense
+- Build synthesis reports when you see meaningful patterns across different data sources
+- Enhance existing content when possible rather than always creating new files
+- Create substantial reports with actionable intelligence when the content warrants it
+- Look for natural connections between trust network analysis and strategic planning
+
+NATURAL INTERCONNECTION OPPORTUNITIES:
+- Goals ↔ Trust Network: Look for connections between strategic objectives and partnership opportunities
+- Trust Data ↔ Reports: Consider how partnership analysis might inform strategic insights  
+- Foundations ↔ Other Content: Connect core values to strategic content where it makes sense
+- Use your creativity to identify meaningful connections that enhance understanding
+
+Ask for HITL checkpoints when making major structural decisions or before final commit.`,
     },
   ];
 
