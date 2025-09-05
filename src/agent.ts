@@ -172,12 +172,32 @@ ${bullets.map((b: string) => `- ${b}`).join('\n')}
 Context:
 ${contextSummary}
 
-If something is missing, propose a minimal plan and then use tools to create:
-- reports/utopia-report.md (high-level)
-- slides/overview.md (Marp) then compile
-- trust/known_nodes.yaml (ensure exists; seed with at least core-nexus/utopia)
+CREATE A LIVING WEB OF INTERCONNECTED KNOWLEDGE:
 
-Ask for HITL checkpoints by outputting short notes (the host will pause between iterations).`,
+ESSENTIAL STRUCTURE (create/enhance these with rich cross-references):
+- index.md: Comprehensive navigation hub with status dashboard, interconnection map, and multiple entry points
+- reports/utopia-report.md: Enhanced operational status with partnership analysis and strategic intelligence
+- reports/synthesis-[timestamp].md: Deep cross-topic analysis identifying collaboration opportunities and patterns
+- slides/overview.md (Marp): Rich presentation with cross-references, then compile
+- trust/known_nodes.yaml: Ensure exists, seed with core-nexus/utopia, analyze for strategic connections
+- goals/README.md: Connect strategic objectives explicitly to trust relationships and collaboration opportunities
+
+LIVING WEB CREATION MANDATES:
+- READ existing content first and ENHANCE it with richer analysis and cross-links
+- Every document must reference 2-3+ related files using [link text](./path/to/file.md)
+- Create bidirectional relationships - if A links to B, ensure B references A back
+- Build synthesis reports that identify patterns across trust networks, goals, and strategic data
+- Focus on enhancing existing content rather than always creating new files
+- Generate rich 50-100+ line reports with actionable intelligence and strategic insights
+- Connect trust network analysis to strategic planning and collaboration opportunities
+
+INTERCONNECTION REQUIREMENTS:
+- Goals ↔ Trust Network: Link strategic objectives to partnership opportunities
+- Trust Data ↔ Reports: Use partnership analysis to inform strategic insights  
+- Foundations ↔ Everything: Connect core values to all strategic content
+- Create comprehensive cross-reference web enabling rich knowledge discovery
+
+Ask for HITL checkpoints when making major structural decisions or before final commit.`,
     },
   ];
 
