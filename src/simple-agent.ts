@@ -1,12 +1,6 @@
 import { join } from 'jsr:@std/path@1.1.2';
 import { type ChatMessage, SimpleOpenAIClient } from './openai-client.ts';
-import {
-  ensureDir,
-  listDir,
-  readText,
-  writeText,
-  writeYaml,
-} from './tools/fsTools.ts';
+import { ensureDir, listDir, readText, writeText, writeYaml } from './tools/fsTools.ts';
 import { SYSTEM_PROMPT } from './prompts/system.ts';
 import { hitl } from './hitl.ts';
 
@@ -19,12 +13,10 @@ export type AgentOptions = {
 
 export async function runSimpleAgent(opts: AgentOptions) {
   const cwd = opts.cwd;
-  const baseURL = opts.baseURL ??
-    (Deno.env.get('OPENAI_API_KEY')
-      ? 'https://api.openai.com/v1'
-      : 'http://localhost:1234/v1');
-  const modelName = opts.model ??
-    (Deno.env.get('OPENAI_API_KEY') ? 'gpt-5' : 'openai/gpt-oss-20b');
+  const baseURL =
+    opts.baseURL ??
+    (Deno.env.get('OPENAI_API_KEY') ? 'https://api.openai.com/v1' : 'http://localhost:1234/v1');
+  const modelName = opts.model ?? (Deno.env.get('OPENAI_API_KEY') ? 'gpt-5' : 'openai/gpt-oss-20b');
 
   const client = new SimpleOpenAIClient(baseURL);
 
@@ -76,16 +68,10 @@ Respond with a structured JSON format containing the topics and their content.`,
     // Parse and create the suggested topics
     await createCriticalTopics(cwd, response);
 
-    console.log(
-      '\n✅ Utopia node initialized - now entering continuous generation mode!',
-    );
+    console.log('\n✅ Utopia node initialized - now entering continuous generation mode!');
     console.log('📁 Created basic structure: goals/, foundations/, trust/');
-    console.log(
-      '🌍 Generated critical global topics with slides and video content',
-    );
-    console.log(
-      '🔄 Beginning deep research and continuous content generation...',
-    );
+    console.log('🌍 Generated critical global topics with slides and video content');
+    console.log('🔄 Beginning deep research and continuous content generation...');
 
     // Enter continuous generation mode
     await continuousGeneration(cwd, client, modelName);
@@ -97,8 +83,7 @@ Respond with a structured JSON format containing the topics and their content.`,
 
 async function createBasicStructure(cwd: string) {
   // Check existing structure
-  const foundationsExists =
-    (await listDir(join(cwd, 'foundations'))).length > 0;
+  const foundationsExists = (await listDir(join(cwd, 'foundations'))).length > 0;
   const topicsExists = (await listDir(join(cwd, 'topics'))).length > 0;
 
   // Create directories only if they don't exist
@@ -138,13 +123,7 @@ A decentralized, collaborative network where nodes work together to create posit
         'Continuous improvement',
         'Community-driven development',
       ],
-      values: [
-        'Trust',
-        'Innovation',
-        'Sustainability',
-        'Inclusivity',
-        'Decentralization',
-      ],
+      values: ['Trust', 'Innovation', 'Sustainability', 'Inclusivity', 'Decentralization'],
       established: new Date().toISOString().split('T')[0],
     };
     await writeYaml(join(cwd, 'foundations', 'index.yaml'), foundationsData);
@@ -181,10 +160,10 @@ This Utopia node has been successfully initialized with the basic structure and 
 ## Structure Created
 - ✅ Goals defined in \`goals/README.md\`
 ${
-    !foundationsExists
-      ? '- ✅ Foundations established in `foundations/index.yaml`'
-      : '- ℹ️  Foundations directory already exists (preserved)'
-  }
+  !foundationsExists
+    ? '- ✅ Foundations established in `foundations/index.yaml`'
+    : '- ℹ️  Foundations directory already exists (preserved)'
+}
 - ✅ Trust network initialized in \`trust/known_nodes.yaml\`
 - ✅ Reporting system set up
 
@@ -228,8 +207,7 @@ async function createCriticalTopics(cwd: string, _aiResponse: string) {
     {
       slug: 'digital-rights',
       title: 'Digital Rights & AI Ethics',
-      description:
-        'Ensuring ethical AI development and protecting digital rights for all',
+      description: 'Ensuring ethical AI development and protecting digital rights for all',
       actions: [
         'Advocate for transparent AI governance',
         'Protect digital privacy and data rights',
@@ -240,8 +218,7 @@ async function createCriticalTopics(cwd: string, _aiResponse: string) {
     {
       slug: 'global-health-equity',
       title: 'Global Health Equity',
-      description:
-        'Ensuring healthcare access and addressing global health disparities',
+      description: 'Ensuring healthcare access and addressing global health disparities',
       actions: [
         'Support universal healthcare initiatives',
         'Address healthcare disparities in underserved communities',
@@ -282,7 +259,7 @@ ${topic.description}
 
 ## Key Actions Required
 
-${topic.actions.map((action) => `- ${action}`).join('\n')}
+${topic.actions.map(action => `- ${action}`).join('\n')}
 
 ## Current Status
 This topic requires immediate attention and coordinated global action.
@@ -403,7 +380,7 @@ The scale of this challenge is unprecedented, but so is our capacity to address 
 **Narration**:
 "Here's what we can do:
 
-${topic.actions.map((action) => `- ${action}`).join('\n')}
+${topic.actions.map(action => `- ${action}`).join('\n')}
 
 These aren't just ideas - they're proven approaches that are already making a difference."
 
@@ -478,19 +455,13 @@ ${topic.description}
     await writeText(join(topicDir, 'reports', 'report.md'), reportContent);
   }
 
-  console.log(
-    `\n📁 Created ${criticalTopics.length} critical topic directories:`,
-  );
-  criticalTopics.forEach((topic) => {
+  console.log(`\n📁 Created ${criticalTopics.length} critical topic directories:`);
+  criticalTopics.forEach(topic => {
     console.log(`  - topics/${topic.slug}/ (${topic.title})`);
   });
 }
 
-async function continuousGeneration(
-  cwd: string,
-  client: SimpleOpenAIClient,
-  modelName: string,
-) {
+async function continuousGeneration(cwd: string, client: SimpleOpenAIClient, modelName: string) {
   let iteration = 1;
   const maxIterations = 50; // Safety limit to prevent infinite loops during development
 
@@ -507,9 +478,7 @@ async function continuousGeneration(
       await exploreTrustNetwork(cwd, client, modelName);
 
       // Phase 3: Generate New Topics
-      console.log(
-        '🆕 Phase 3: Discovering and creating new critical topics...',
-      );
+      console.log('🆕 Phase 3: Discovering and creating new critical topics...');
       await discoverNewTopics(cwd, client, modelName, iteration);
 
       // Phase 4: Synthesize Existing Content
@@ -517,47 +486,55 @@ async function continuousGeneration(
       await synthesizeExistingContent(cwd, client, modelName);
 
       // Phase 5: Generate Media Content
-      console.log(
-        '🎬 Phase 5: Creating video scripts and slide presentations...',
-      );
+      console.log('🎬 Phase 5: Creating video scripts and slide presentations...');
       await generateMediaContent(cwd, client, modelName, iteration);
 
-      console.log(
-        `✅ Cycle ${iteration} complete. Continuing to next iteration...`,
-      );
+      console.log(`✅ Cycle ${iteration} complete. Continuing to next iteration...`);
       iteration++;
 
       // Small delay to prevent overwhelming the API
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (error) {
       console.error(
         `❌ Error in cycle ${iteration}:`,
-        error instanceof Error ? error.message : error,
+        error instanceof Error ? error.message : error
       );
       console.log('🔄 Continuing with next cycle...');
       iteration++;
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
 
-  console.log(
-    `\n🏁 Completed ${maxIterations} generation cycles. System ready for production!`,
-  );
+  console.log(`\n🏁 Completed ${maxIterations} generation cycles. System ready for production!`);
 }
 
 async function generateResearchReports(
   cwd: string,
   client: SimpleOpenAIClient,
   modelName: string,
-  iteration: number,
+  iteration: number
 ) {
   // Get existing topics to research
-  const topicDirs = await listDir(join(cwd, 'topics'));
+  const topicsPath = join(cwd, 'topics');
+  const allEntries = await listDir(topicsPath);
+
+  // Filter to only include directories (skip .gitkeep and other files)
+  const topicDirs = [];
+  for (const entry of allEntries) {
+    try {
+      const entryPath = join(topicsPath, entry);
+      const stat = await Deno.stat(entryPath);
+      if (stat.isDirectory) {
+        topicDirs.push(entry);
+      }
+    } catch {
+      // Skip entries we can't stat
+    }
+  }
 
   for (const topicSlug of topicDirs.slice(0, 2)) {
     // Process 2 topics per cycle to avoid overwhelming
-    const researchPrompt =
-      `Generate a comprehensive research report for the ${topicSlug} topic. Include:
+    const researchPrompt = `Generate a comprehensive research report for the ${topicSlug} topic. Include:
 
 1. Current global statistics and data
 2. Key organizations and initiatives currently working on this
@@ -580,19 +557,13 @@ Make it thorough, well-researched, and actionable. Focus on data-driven insights
           },
           { role: 'user', content: researchPrompt },
         ],
-        modelName,
+        modelName
       );
 
-      const reportPath = join(
-        cwd,
-        'topics',
-        topicSlug,
-        'reports',
-        `deep-research-${iteration}.md`,
-      );
-      const reportContent = `# Deep Research Report - ${
-        topicSlug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
-      }
+      const reportPath = join(cwd, 'topics', topicSlug, 'reports', `deep-research-${iteration}.md`);
+      const reportContent = `# Deep Research Report - ${topicSlug
+        .replace(/-/g, ' ')
+        .replace(/\b\w/g, (l: string) => l.toUpperCase())}
 
 **Report #**: ${iteration}
 **Generated**: ${new Date().toISOString()}
@@ -607,21 +578,13 @@ ${research}
       await writeText(reportPath, reportContent);
       console.log(`  📄 Generated research report: ${reportPath}`);
     } catch (error) {
-      console.error(
-        `  ❌ Failed to generate research for ${topicSlug}:`,
-        error,
-      );
+      console.error(`  ❌ Failed to generate research for ${topicSlug}:`, error);
     }
   }
 }
 
-async function exploreTrustNetwork(
-  cwd: string,
-  client: SimpleOpenAIClient,
-  modelName: string,
-) {
-  const trustPrompt =
-    `Identify 10 highly trusted organizations, research institutions, and initiatives working on global challenges like climate action, digital rights, and health equity. For each, provide:
+async function exploreTrustNetwork(cwd: string, client: SimpleOpenAIClient, modelName: string) {
+  const trustPrompt = `Identify 10 highly trusted organizations, research institutions, and initiatives working on global challenges like climate action, digital rights, and health equity. For each, provide:
 
 1. Organization name and website
 2. Trust score (0.0-1.0) based on credibility, impact, and transparency
@@ -641,7 +604,7 @@ Format as YAML for trust/known_nodes.yaml`;
         },
         { role: 'user', content: trustPrompt },
       ],
-      modelName,
+      modelName
     );
 
     // Parse and append to existing trust network
@@ -660,11 +623,7 @@ status: active_discovery
 *Generated by utopian trust network exploration*
 `;
 
-    const expandedTrustFile = join(
-      cwd,
-      'trust',
-      `expanded-network-${Date.now()}.yaml`,
-    );
+    const expandedTrustFile = join(cwd, 'trust', `expanded-network-${Date.now()}.yaml`);
     await writeText(expandedTrustFile, expandedTrustContent);
     console.log(`  🕸️  Expanded trust network: ${expandedTrustFile}`);
   } catch (error) {
@@ -676,10 +635,9 @@ async function discoverNewTopics(
   cwd: string,
   client: SimpleOpenAIClient,
   modelName: string,
-  iteration: number,
+  iteration: number
 ) {
-  const discoveryPrompt =
-    `Based on current global developments in 2024-2025, identify 2 emerging critical challenges that need urgent attention but aren't widely discussed yet. Consider:
+  const discoveryPrompt = `Based on current global developments in 2024-2025, identify 2 emerging critical challenges that need urgent attention but aren't widely discussed yet. Consider:
 
 1. Technological disruptions and their societal impact
 2. Environmental tipping points and cascading effects
@@ -706,7 +664,7 @@ Format as JSON with topic details.`;
         },
         { role: 'user', content: discoveryPrompt },
       ],
-      modelName,
+      modelName
     );
 
     // Create directory for discovered topics
@@ -742,11 +700,10 @@ ${newTopics}
 async function synthesizeExistingContent(
   cwd: string,
   client: SimpleOpenAIClient,
-  modelName: string,
+  modelName: string
 ) {
   // Read existing reports and synthesize insights
-  const synthesisPrompt =
-    `Analyze all existing content in this Utopia node and create a synthesis report that:
+  const synthesisPrompt = `Analyze all existing content in this Utopia node and create a synthesis report that:
 
 1. Identifies common themes and interconnections between topics
 2. Highlights gaps that need more attention
@@ -766,7 +723,7 @@ Focus on creating actionable insights that connect different challenge areas.`;
         },
         { role: 'user', content: synthesisPrompt },
       ],
-      modelName,
+      modelName
     );
 
     const synthesisFile = join(cwd, 'reports', `synthesis-${Date.now()}.md`);
@@ -800,11 +757,10 @@ async function generateMediaContent(
   cwd: string,
   client: SimpleOpenAIClient,
   modelName: string,
-  iteration: number,
+  iteration: number
 ) {
   // Generate updated slide decks and video scripts
-  const mediaPrompt =
-    `Create compelling presentation and video content for global challenge solutions. Generate:
+  const mediaPrompt = `Create compelling presentation and video content for global challenge solutions. Generate:
 
 1. A powerful 10-slide presentation outline for one critical topic
 2. A detailed video script (10-15 minutes) that could go viral
@@ -823,14 +779,10 @@ Make it inspiring, data-driven, and focused on concrete actions people can take 
         },
         { role: 'user', content: mediaPrompt },
       ],
-      modelName,
+      modelName
     );
 
-    const mediaFile = join(
-      cwd,
-      'media',
-      `content-${iteration}-${Date.now()}.md`,
-    );
+    const mediaFile = join(cwd, 'media', `content-${iteration}-${Date.now()}.md`);
     const mediaContentFormatted = `# Media Content Package - Cycle ${iteration}
 
 **Generated**: ${new Date().toISOString()}

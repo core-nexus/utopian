@@ -3,10 +3,13 @@
   "specifiers": {
     "jsr:@std/assert@*": "1.0.6",
     "jsr:@std/cli@*": "1.0.21",
+    "jsr:@std/cli@1.0.21": "1.0.21",
     "jsr:@std/internal@^1.0.10": "1.0.10",
     "jsr:@std/internal@^1.0.4": "1.0.10",
     "jsr:@std/path@*": "1.1.2",
+    "jsr:@std/path@1.1.2": "1.1.2",
     "jsr:@std/yaml@*": "1.0.9",
+    "jsr:@std/yaml@1.0.9": "1.0.9",
     "npm:@ai-sdk/openai@^2.0.15": "2.0.20_zod@4.1.1",
     "npm:@eslint/js@^9.34.0": "9.34.0",
     "npm:@marp-team/marp-cli@^4.2.3": "4.2.3_typescript@5.9.2",
