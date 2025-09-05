@@ -51,7 +51,8 @@ challenges like climate change, digital rights, and health equity. Each node:
 - 🕸️ **Builds trust networks** with other nodes and organizations
 - 📊 **Generates comprehensive reports** with data-driven insights
 - 🎬 **Creates media content** including presentations and video scripts
-- 🎨 **Generates images** automatically with mflux for visual content (auto-setup)
+- 🎨 **Generates images** automatically with mflux for visual content
+  (auto-setup)
 - 🔄 **Operates continuously** to discover new challenges and opportunities
 
 ## ✨ Features
@@ -99,7 +100,8 @@ deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,
 ### Requirements
 
 - **Deno**: >= 2.x
-- **Python 3**: For automatic image generation (auto-installed in virtual environment)
+- **Python 3**: For automatic image generation (auto-installed in virtual
+  environment)
 - **Optional**: LM Studio for local AI models
 - **Optional**: OpenAI API key for GPT models
 
@@ -120,10 +122,10 @@ deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,
 
 ### Command Options
 
-| Option           | Description                     | Default       |
-| ---------------- | ------------------------------- | ------------- |
-| `--base <url>`   | OpenAI-compatible API base URL  | Auto-detected |
-| `--model <name>` | Model name to use               | Auto-detected |
+| Option           | Description                    | Default       |
+| ---------------- | ------------------------------ | ------------- |
+| `--base <url>`   | OpenAI-compatible API base URL | Auto-detected |
+| `--model <name>` | Model name to use              | Auto-detected |
 
 ### AI Model Selection
 

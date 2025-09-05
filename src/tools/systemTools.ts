@@ -1,6 +1,13 @@
 import { join } from 'jsr:@std/path@1.1.2';
 
-const ALLOW = new Set(['marp', 'ffmpeg', 'git', 'mflux-generate', 'python3', 'bash']);
+const ALLOW = new Set([
+  'marp',
+  'ffmpeg',
+  'git',
+  'mflux-generate',
+  'python3',
+  'bash',
+]);
 
 export async function runCmd(
   cmd: string,
@@ -31,7 +38,7 @@ export async function checkMfluxAvailable(cwd: string): Promise<boolean> {
     // Check if Python virtual environment exists and has mflux installed
     const venvPath = join(cwd, 'tmp', 'mflux', '.venv');
     const activateScript = join(venvPath, 'bin', 'activate');
-    
+
     try {
       await Deno.stat(activateScript);
     } catch {
@@ -40,7 +47,10 @@ export async function checkMfluxAvailable(cwd: string): Promise<boolean> {
 
     // Check if mflux is installed in the venv
     const checkCmd = new Deno.Command('bash', {
-      args: ['-c', `source ${activateScript} && python -c "import mflux; print('available')"`],
+      args: [
+        '-c',
+        `source ${activateScript} && python -c "import mflux; print('available')"`,
+      ],
       cwd,
       stdout: 'piped',
       stderr: 'piped',
@@ -84,16 +94,21 @@ export async function setupMfluxEnvironment(cwd: string): Promise<boolean> {
 
     // Check if mflux is already installed
     const checkCmd = new Deno.Command('bash', {
-      args: ['-c', `source ${activateScript} && python -c "import mflux; print('installed')"`],
+      args: [
+        '-c',
+        `source ${activateScript} && python -c "import mflux; print('installed')"`,
+      ],
       cwd: mfluxDir,
       stdout: 'piped',
       stderr: 'piped',
     });
     const checkResult = await checkCmd.output();
-    
+
     if (checkResult.code !== 0) {
       // Install mflux
-      console.log('  📦 Installing mflux (this may take a while and use significant disk space)...');
+      console.log(
+        '  📦 Installing mflux (this may take a while and use significant disk space)...',
+      );
       const installCmd = new Deno.Command('bash', {
         args: ['-c', `source ${activateScript} && pip install -U mlx mflux`],
         cwd: mfluxDir,
@@ -128,7 +143,7 @@ export async function generateImage(
     seed?: number;
     quantize?: number;
     cwd?: string;
-  } = {}
+  } = {},
 ): Promise<string> {
   const {
     width = 1024,
@@ -136,22 +151,26 @@ export async function generateImage(
     steps = 28,
     seed,
     quantize = 8,
-    cwd = '.'
+    cwd = '.',
   } = opts;
 
   const mfluxDir = join(cwd, 'tmp', 'mflux');
   const activateScript = join(mfluxDir, '.venv', 'bin', 'activate');
-  
+
   // Build the mflux-generate command
-  let mfluxCmd = `mflux-generate --low-ram --model dev --steps ${steps} --quantize ${quantize} --prompt "${prompt}" --width ${width} --height ${height} --out "${outputPath}"`;
-  
+  let mfluxCmd =
+    `mflux-generate --low-ram --model dev --steps ${steps} --quantize ${quantize} --prompt "${prompt}" --width ${width} --height ${height} --out "${outputPath}"`;
+
   if (seed !== undefined) {
     mfluxCmd += ` --seed ${seed}`;
   }
 
   // Run mflux-generate in the virtual environment
   const command = new Deno.Command('bash', {
-    args: ['-c', `cd "${mfluxDir}" && source ${activateScript} && cd "${cwd}" && ${mfluxCmd}`],
+    args: [
+      '-c',
+      `cd "${mfluxDir}" && source ${activateScript} && cd "${cwd}" && ${mfluxCmd}`,
+    ],
     cwd,
     stdout: 'piped',
     stderr: 'piped',
