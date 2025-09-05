@@ -11,7 +11,7 @@ tackle global challenges through AI-powered collaboration.**
 Run the Utopian CLI from any directory:
 
 ```bash
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash https://deno.land/x/utopian/mod.ts
 ```
 
 Or clone and run locally:
@@ -51,6 +51,7 @@ challenges like climate change, digital rights, and health equity. Each node:
 - 🕸️ **Builds trust networks** with other nodes and organizations
 - 📊 **Generates comprehensive reports** with data-driven insights
 - 🎬 **Creates media content** including presentations and video scripts
+- 🎨 **Generates images** automatically with mflux for visual content (auto-setup)
 - 🔄 **Operates continuously** to discover new challenges and opportunities
 
 ## ✨ Features
@@ -71,6 +72,7 @@ challenges like climate change, digital rights, and health equity. Each node:
   collaborators
 - **Topic Discovery**: Identification of emerging critical challenges
 - **Media Creation**: Presentation slides (Marp-compatible) and video scripts
+- **Image Generation**: Automatic creation of contextual visuals using mflux
 - **Content Synthesis**: Cross-topic analysis and strategic insights
 
 ### 🔄 **Continuous Generation Engine**
@@ -91,12 +93,13 @@ challenges like climate change, digital rights, and health equity. Each node:
 ### Direct Usage (Recommended)
 
 ```bash
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash https://deno.land/x/utopian/mod.ts
 ```
 
 ### Requirements
 
 - **Deno**: >= 2.x
+- **Python 3**: For automatic image generation (auto-installed in virtual environment)
 - **Optional**: LM Studio for local AI models
 - **Optional**: OpenAI API key for GPT models
 
@@ -109,13 +112,13 @@ deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms 
 deno task start
 
 # Use with specific AI model
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --model gpt-4
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash mod.ts --model gpt-4
 
 # Skip human-in-the-loop confirmations
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --auto
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash mod.ts --auto
 
 # Use custom OpenAI-compatible endpoint
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --base https://your-api.com/v1 --model your-model
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash mod.ts --base https://your-api.com/v1 --model your-model
 ```
 
 ### Command Options
@@ -177,6 +180,10 @@ utopia-node/
 │   └── global-health-equity/
 ├── reports/                   # Synthesis and analysis reports
 ├── media/                     # Generated presentations and scripts
+│   └── images/                # AI-generated visual content
+├── tmp/
+│   └── mflux/                 # Image generation environment
+│       └── .venv/             # Python virtual environment
 └── dist/                      # Compiled presentations
 ```
 
@@ -273,7 +280,7 @@ This project is licensed under the Apache License 2.0 - see the
 **Ready to build the future?** Start your Utopia node today:
 
 ```bash
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash https://deno.land/x/utopian/mod.ts
 ```
 
 _Together, we can tackle global challenges through decentralized collaboration
