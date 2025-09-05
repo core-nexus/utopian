@@ -182,20 +182,20 @@ ESSENTIAL STRUCTURE (create/enhance these with rich cross-references):
 - trust/known_nodes.yaml: Ensure exists, seed with core-nexus/utopia, analyze for strategic connections
 - goals/README.md: Connect strategic objectives explicitly to trust relationships and collaboration opportunities
 
-LIVING WEB CREATION MANDATES:
-- READ existing content first and ENHANCE it with richer analysis and cross-links
-- Every document must reference 2-3+ related files using [link text](./path/to/file.md)
-- Create bidirectional relationships - if A links to B, ensure B references A back
-- Build synthesis reports that identify patterns across trust networks, goals, and strategic data
-- Focus on enhancing existing content rather than always creating new files
-- Generate rich 50-100+ line reports with actionable intelligence and strategic insights
-- Connect trust network analysis to strategic planning and collaboration opportunities
+LIVING WEB CREATION APPROACH:
+- Look for existing content to enhance with richer analysis and natural cross-links
+- Create meaningful cross-references when content naturally connects using [link text](./path/to/file.md)
+- Consider bidirectional relationships where they make sense
+- Build synthesis reports when you see meaningful patterns across different data sources
+- Enhance existing content when possible rather than always creating new files
+- Create substantial reports with actionable intelligence when the content warrants it
+- Look for natural connections between trust network analysis and strategic planning
 
-INTERCONNECTION REQUIREMENTS:
-- Goals ↔ Trust Network: Link strategic objectives to partnership opportunities
-- Trust Data ↔ Reports: Use partnership analysis to inform strategic insights  
-- Foundations ↔ Everything: Connect core values to all strategic content
-- Create comprehensive cross-reference web enabling rich knowledge discovery
+NATURAL INTERCONNECTION OPPORTUNITIES:
+- Goals ↔ Trust Network: Look for connections between strategic objectives and partnership opportunities
+- Trust Data ↔ Reports: Consider how partnership analysis might inform strategic insights  
+- Foundations ↔ Other Content: Connect core values to strategic content where it makes sense
+- Use your creativity to identify meaningful connections that enhance understanding
 
 Ask for HITL checkpoints when making major structural decisions or before final commit.`,
     },
