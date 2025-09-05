@@ -331,12 +331,12 @@ This topic requires immediate attention and coordinated global action.
 
     // Create Marp-compatible presentation slides
     const heroImage = topic.slug === 'climate-action'
-      ? 'media/images/climate-action-hero.png'
+      ? '../../../media/images/climate-action-hero.png'
       : topic.slug === 'digital-rights'
-      ? 'media/images/digital-rights-network.png'
+      ? '../../../media/images/digital-rights-network.png'
       : topic.slug === 'global-health-equity'
-      ? 'media/images/global-health-unity.png'
-      : 'media/images/collaboration-network.png';
+      ? '../../../media/images/global-health-unity.png'
+      : '../../../media/images/collaboration-network.png';
 
     const slidesContent = `---
 marp: true
@@ -357,7 +357,7 @@ ${topic.description}
 
 # Why This Matters Now
 
-![bg left:30%](media/images/collaboration-network.png)
+![bg left:30%](../../../media/images/collaboration-network.png)
 
 - **Urgent Action Required**: Time-sensitive global challenge
 - **Collective Impact**: Requires coordinated worldwide effort
