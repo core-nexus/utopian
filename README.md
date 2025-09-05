@@ -152,7 +152,7 @@ LMSTUDIO_MODEL=your_preferred_model
 1. Download and install [LM Studio](https://lmstudio.ai/)
 2. Load a compatible model (e.g., Qwen, Llama, Mistral)
 3. Start the local server (auto-started by CLI)
-4. Run `npx utopian` - it will automatically detect and use LM Studio
+4. Run the deno command above - it will automatically detect and use LM Studio
 
 ## 📁 Project Structure
 
