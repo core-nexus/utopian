@@ -15,7 +15,7 @@ function printHelp() {
 utopian - Utopia Node agent (local-first)
 
 USAGE:
-  deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms mod.ts [OPTIONS]
+  deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms,python3,bash mod.ts [OPTIONS]
 
 OPTIONS:
   --base <url>     OpenAI-compatible base URL (default: https://api.openai.com/v1 if OPENAI_API_KEY set, else http://localhost:1234/v1)

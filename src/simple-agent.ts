@@ -1,7 +1,7 @@
 import { join } from 'jsr:@std/path@1.1.2';
 import { type ChatMessage, SimpleOpenAIClient } from './openai-client.ts';
 import { ensureDir, listDir, readText, writeText, writeYaml } from './tools/fsTools.ts';
-import { checkMfluxAvailable, generateImage } from './tools/systemTools.ts';
+import { checkMfluxAvailable, generateImage, setupMfluxEnvironment } from './tools/systemTools.ts';
 import { SYSTEM_PROMPT } from './prompts/system.ts';
 import { hitl } from './hitl.ts';
 
@@ -22,15 +22,26 @@ export async function runSimpleAgent(opts: AgentOptions) {
   const client = new SimpleOpenAIClient(baseURL);
 
   // Check for mflux-generate availability
-  const mfluxAvailable = await checkMfluxAvailable();
+  let mfluxAvailable = await checkMfluxAvailable(cwd);
   if (!mfluxAvailable) {
-    console.log('\n🖼️  Image generation disabled: mflux-generate not found');
-    console.log('   To enable image generation capabilities:');
-    console.log('   1. Install mflux-generate (requires significant disk space)');
-    console.log('   2. Warning: Image generation will use substantial processing power');
-    console.log('   3. Visit: https://github.com/filipstrand/mflux for installation');
+    console.log('\n🖼️  Image generation environment not found');
+    console.log('   Setting up mflux for image generation...');
+    console.log('   ⚠️  Warning: This requires significant disk space and processing power');
+    
+    const setupSuccess = await setupMfluxEnvironment(cwd);
+    if (setupSuccess) {
+      mfluxAvailable = await checkMfluxAvailable(cwd);
+      if (mfluxAvailable) {
+        console.log('✅ Image generation enabled: mflux environment ready');
+      } else {
+        console.log('❌ Image generation setup failed');
+      }
+    } else {
+      console.log('❌ Failed to setup mflux environment');
+      console.log('   Image generation will be disabled');
+    }
   } else {
-    console.log('✅ Image generation enabled: mflux-generate found');
+    console.log('✅ Image generation enabled: mflux environment ready');
   }
 
   // ---------- Initial context ----------
