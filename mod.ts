@@ -6,7 +6,6 @@ import { runSimpleAgent } from './src/simple-agent.ts';
 interface Args {
   base?: string;
   model?: string;
-  auto?: boolean;
   help?: boolean;
 }
 
@@ -15,12 +14,11 @@ function printHelp() {
 utopian - Utopia Node agent (local-first)
 
 USAGE:
-  deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms mod.ts [OPTIONS]
+  deno run --allow-read=. --allow-write=. --allow-net=127.0.0.1,api.openai.com,localhost:1234 --allow-env --allow-run=lms,python3,bash mod.ts [OPTIONS]
 
 OPTIONS:
   --base <url>     OpenAI-compatible base URL (default: https://api.openai.com/v1 if OPENAI_API_KEY set, else http://localhost:1234/v1)
   --model <name>   model name (default: gpt-5 if OPENAI_API_KEY set, else openai/gpt-oss-20b)
-  --auto           skip HITL gates
   --help           show this help message
 `);
 }
@@ -28,7 +26,7 @@ OPTIONS:
 async function main() {
   const args = parseArgs(Deno.args, {
     string: ['base', 'model'],
-    boolean: ['auto', 'help'],
+    boolean: ['help'],
     alias: {
       h: 'help',
     },
@@ -77,7 +75,6 @@ async function main() {
     cwd: Deno.cwd(),
     baseURL,
     model,
-    auto: !!args.auto,
   });
 }
 

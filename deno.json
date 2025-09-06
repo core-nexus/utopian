@@ -1,6 +1,6 @@
 {
   "name": "@utopian/utopian",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "exports": "./mod.ts",
   "tasks": {
     "start": "deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts",

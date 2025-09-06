@@ -1,24 +1,71 @@
 import { join } from 'jsr:@std/path@1.1.2';
 import { type ChatMessage, SimpleOpenAIClient } from './openai-client.ts';
-import { ensureDir, listDir, readText, writeText, writeYaml } from './tools/fsTools.ts';
+import {
+  ensureDir,
+  listDir,
+  readText,
+  writeText,
+  writeYaml,
+} from './tools/fsTools.ts';
+import {
+  checkMfluxAvailable,
+  generateImage,
+  setupMfluxEnvironment,
+} from './tools/systemTools.ts';
 import { SYSTEM_PROMPT } from './prompts/system.ts';
-import { hitl } from './hitl.ts';
+
+interface FoundationalContext {
+  universalTaxonomy?: string;
+  roseFramework?: string;
+  customDocuments: string[];
+  isEmpty: boolean;
+}
 
 export type AgentOptions = {
   cwd: string;
   model?: string;
   baseURL?: string;
-  auto?: boolean;
 };
 
 export async function runSimpleAgent(opts: AgentOptions) {
   const cwd = opts.cwd;
-  const baseURL =
-    opts.baseURL ??
-    (Deno.env.get('OPENAI_API_KEY') ? 'https://api.openai.com/v1' : 'http://localhost:1234/v1');
-  const modelName = opts.model ?? (Deno.env.get('OPENAI_API_KEY') ? 'gpt-5' : 'openai/gpt-oss-20b');
+  const baseURL = opts.baseURL ??
+    (Deno.env.get('OPENAI_API_KEY')
+      ? 'https://api.openai.com/v1'
+      : 'http://localhost:1234/v1');
+  const modelName = opts.model ??
+    (Deno.env.get('OPENAI_API_KEY') ? 'gpt-5' : 'openai/gpt-oss-20b');
 
   const client = new SimpleOpenAIClient(baseURL);
+
+  // FIRST: Read and integrate foundations to inform everything
+  console.log('\n🧠 Reading foundational documents to understand this Utopia node\'s perspective...');
+  const foundationalContext = await readFoundationalDocuments(cwd);
+
+  // Check for mflux-generate availability
+  let mfluxAvailable = await checkMfluxAvailable(cwd);
+  if (!mfluxAvailable) {
+    console.log('\n🖼️  Image generation environment not found');
+    console.log('   Setting up mflux for image generation...');
+    console.log(
+      '   ⚠️  Warning: This requires significant disk space and processing power',
+    );
+
+    const setupSuccess = await setupMfluxEnvironment(cwd);
+    if (setupSuccess) {
+      mfluxAvailable = await checkMfluxAvailable(cwd);
+      if (mfluxAvailable) {
+        console.log('✅ Image generation enabled: mflux environment ready');
+      } else {
+        console.log('❌ Image generation setup failed');
+      }
+    } else {
+      console.log('❌ Failed to setup mflux environment');
+      console.log('   Image generation will be disabled');
+    }
+  } else {
+    console.log('✅ Image generation enabled: mflux environment ready');
+  }
 
   // ---------- Initial context ----------
   const goals = await readText(join(cwd, 'goals', 'README.md'));
@@ -32,21 +79,22 @@ export async function runSimpleAgent(opts: AgentOptions) {
     trust ? '- trust present' : '- trust missing',
   ].join('\n');
 
-  // Optional HITL at the start to confirm plan
-  await hitl('planning', cwd, '01-planning', contextSummary, opts.auto);
-
   // Create the basic structure first
   await createBasicStructure(cwd);
 
-  // Generate AI-powered content for critical topics
+  // Generate AI-powered content for critical topics informed by foundations
+  const foundationalGuidance = buildFoundationalGuidance(foundationalContext);
+  
   const messages: ChatMessage[] = [
-    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'system', content: SYSTEM_PROMPT + foundationalGuidance },
     {
       role: 'user',
       content: `Project root: ${cwd}
 
 Context:
 ${contextSummary}
+
+${!foundationalContext.isEmpty ? 'IMPORTANT: This node has specific foundational principles that should guide everything. Honor the philosophical and organizational frameworks found in this node\'s foundations.' : ''}
 
 I need you to identify and create content for the 3 most critical global challenges that need immediate attention in 2024-2025. For each challenge, create:
 
@@ -68,13 +116,19 @@ Respond with a structured JSON format containing the topics and their content.`,
     // Parse and create the suggested topics
     await createCriticalTopics(cwd, response);
 
-    console.log('\n✅ Utopia node initialized - now entering continuous generation mode!');
+    console.log(
+      '\n✅ Utopia node initialized - now entering continuous generation mode!',
+    );
     console.log('📁 Created basic structure: goals/, foundations/, trust/');
-    console.log('🌍 Generated critical global topics with slides and video content');
-    console.log('🔄 Beginning deep research and continuous content generation...');
+    console.log(
+      '🌍 Generated critical global topics with slides and video content',
+    );
+    console.log(
+      '🔄 Beginning deep research and continuous content generation...',
+    );
 
     // Enter continuous generation mode
-    await continuousGeneration(cwd, client, modelName);
+    await continuousGeneration(cwd, client, modelName, mfluxAvailable);
   } catch (error) {
     console.error('❌ Error:', error instanceof Error ? error.message : error);
     throw error;
@@ -83,7 +137,8 @@ Respond with a structured JSON format containing the topics and their content.`,
 
 async function createBasicStructure(cwd: string) {
   // Check existing structure
-  const foundationsExists = (await listDir(join(cwd, 'foundations'))).length > 0;
+  const foundationsExists =
+    (await listDir(join(cwd, 'foundations'))).length > 0;
   const topicsExists = (await listDir(join(cwd, 'topics'))).length > 0;
 
   // Create directories only if they don't exist
@@ -123,7 +178,13 @@ A decentralized, collaborative network where nodes work together to create posit
         'Continuous improvement',
         'Community-driven development',
       ],
-      values: ['Trust', 'Innovation', 'Sustainability', 'Inclusivity', 'Decentralization'],
+      values: [
+        'Trust',
+        'Innovation',
+        'Sustainability',
+        'Inclusivity',
+        'Decentralization',
+      ],
       established: new Date().toISOString().split('T')[0],
     };
     await writeYaml(join(cwd, 'foundations', 'index.yaml'), foundationsData);
@@ -160,10 +221,10 @@ This Utopia node has been successfully initialized with the basic structure and 
 ## Structure Created
 - ✅ Goals defined in \`goals/README.md\`
 ${
-  !foundationsExists
-    ? '- ✅ Foundations established in `foundations/index.yaml`'
-    : '- ℹ️  Foundations directory already exists (preserved)'
-}
+    !foundationsExists
+      ? '- ✅ Foundations established in `foundations/index.yaml`'
+      : '- ℹ️  Foundations directory already exists (preserved)'
+  }
 - ✅ Trust network initialized in \`trust/known_nodes.yaml\`
 - ✅ Reporting system set up
 
@@ -207,7 +268,8 @@ async function createCriticalTopics(cwd: string, _aiResponse: string) {
     {
       slug: 'digital-rights',
       title: 'Digital Rights & AI Ethics',
-      description: 'Ensuring ethical AI development and protecting digital rights for all',
+      description:
+        'Ensuring ethical AI development and protecting digital rights for all',
       actions: [
         'Advocate for transparent AI governance',
         'Protect digital privacy and data rights',
@@ -218,7 +280,8 @@ async function createCriticalTopics(cwd: string, _aiResponse: string) {
     {
       slug: 'global-health-equity',
       title: 'Global Health Equity',
-      description: 'Ensuring healthcare access and addressing global health disparities',
+      description:
+        'Ensuring healthcare access and addressing global health disparities',
       actions: [
         'Support universal healthcare initiatives',
         'Address healthcare disparities in underserved communities',
@@ -259,7 +322,7 @@ ${topic.description}
 
 ## Key Actions Required
 
-${topic.actions.map(action => `- ${action}`).join('\n')}
+${topic.actions.map((action) => `- ${action}`).join('\n')}
 
 ## Current Status
 This topic requires immediate attention and coordinated global action.
@@ -282,6 +345,14 @@ This topic requires immediate attention and coordinated global action.
     await writeText(join(topicDir, 'docs', 'overview.md'), overviewContent);
 
     // Create Marp-compatible presentation slides
+    const heroImage = topic.slug === 'climate-action'
+      ? '../../../media/images/climate-action-hero.png'
+      : topic.slug === 'digital-rights'
+      ? '../../../media/images/digital-rights-network.png'
+      : topic.slug === 'global-health-equity'
+      ? '../../../media/images/global-health-unity.png'
+      : '../../../media/images/collaboration-network.png';
+
     const slidesContent = `---
 marp: true
 title: ${topic.title}
@@ -293,11 +364,15 @@ paginate: true
 # ${topic.title}
 ## A Critical Global Challenge
 
+![bg right:40%](${heroImage})
+
 ${topic.description}
 
 ---
 
 # Why This Matters Now
+
+![bg left:30%](../../../media/images/collaboration-network.png)
 
 - **Urgent Action Required**: Time-sensitive global challenge
 - **Collective Impact**: Requires coordinated worldwide effort
@@ -313,6 +388,8 @@ ${topic.actions.map((action, i) => `## ${i + 1}. ${action}`).join('\n\n')}
 ---
 
 # What You Can Do
+
+![bg right:30%](${heroImage})
 
 ## Individual Actions
 - Stay informed about the latest developments
@@ -345,12 +422,16 @@ ${topic.actions.map((action, i) => `## ${i + 1}. ${action}`).join('\n\n')}
 
 # Thank You
 
+![bg](${heroImage})
+
 ## Together We Can Make a Difference
 
 *${topic.title} - Every action counts*
 
 Generated by Utopia Node Agent
 ${new Date().toISOString().split('T')[0]}
+
+<!-- Note: Images will be generated if mflux-generate is available -->
 `;
     await writeText(join(topicDir, 'slides', 'presentation.md'), slidesContent);
 
@@ -380,7 +461,7 @@ The scale of this challenge is unprecedented, but so is our capacity to address 
 **Narration**:
 "Here's what we can do:
 
-${topic.actions.map(action => `- ${action}`).join('\n')}
+${topic.actions.map((action) => `- ${action}`).join('\n')}
 
 These aren't just ideas - they're proven approaches that are already making a difference."
 
@@ -455,13 +536,20 @@ ${topic.description}
     await writeText(join(topicDir, 'reports', 'report.md'), reportContent);
   }
 
-  console.log(`\n📁 Created ${criticalTopics.length} critical topic directories:`);
-  criticalTopics.forEach(topic => {
+  console.log(
+    `\n📁 Created ${criticalTopics.length} critical topic directories:`,
+  );
+  criticalTopics.forEach((topic) => {
     console.log(`  - topics/${topic.slug}/ (${topic.title})`);
   });
 }
 
-async function continuousGeneration(cwd: string, client: SimpleOpenAIClient, modelName: string) {
+async function continuousGeneration(
+  cwd: string,
+  client: SimpleOpenAIClient,
+  modelName: string,
+  mfluxAvailable: boolean,
+) {
   let iteration = 1;
   const maxIterations = 50; // Safety limit to prevent infinite loops during development
 
@@ -478,7 +566,9 @@ async function continuousGeneration(cwd: string, client: SimpleOpenAIClient, mod
       await exploreTrustNetwork(cwd, client, modelName);
 
       // Phase 3: Generate New Topics
-      console.log('🆕 Phase 3: Discovering and creating new critical topics...');
+      console.log(
+        '🆕 Phase 3: Discovering and creating new critical topics...',
+      );
       await discoverNewTopics(cwd, client, modelName, iteration);
 
       // Phase 4: Synthesize Existing Content
@@ -486,33 +576,166 @@ async function continuousGeneration(cwd: string, client: SimpleOpenAIClient, mod
       await synthesizeExistingContent(cwd, client, modelName);
 
       // Phase 5: Generate Media Content
-      console.log('🎬 Phase 5: Creating video scripts and slide presentations...');
+      console.log(
+        '🎬 Phase 5: Creating video scripts and slide presentations...',
+      );
       await generateMediaContent(cwd, client, modelName, iteration);
 
-      console.log(`✅ Cycle ${iteration} complete. Continuing to next iteration...`);
+      // Phase 6: Generate Images (if mflux available)
+      console.log('🎨 Phase 6: Generating visual content...');
+      await generateContentImages(cwd, client, modelName, mfluxAvailable);
+
+      console.log(
+        `✅ Cycle ${iteration} complete. Continuing to next iteration...`,
+      );
       iteration++;
 
       // Small delay to prevent overwhelming the API
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     } catch (error) {
       console.error(
         `❌ Error in cycle ${iteration}:`,
-        error instanceof Error ? error.message : error
+        error instanceof Error ? error.message : error,
       );
       console.log('🔄 Continuing with next cycle...');
       iteration++;
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
     }
   }
 
-  console.log(`\n🏁 Completed ${maxIterations} generation cycles. System ready for production!`);
+  console.log(
+    `\n🏁 Completed ${maxIterations} generation cycles. System ready for production!`,
+  );
+}
+
+async function readFoundationalDocuments(cwd: string): Promise<FoundationalContext> {
+  const foundationsPath = join(cwd, 'foundations');
+  const context: FoundationalContext = {
+    customDocuments: [],
+    isEmpty: true,
+  };
+
+  try {
+    // Check if foundations directory exists
+    const foundationsExists = (await listDir(foundationsPath)).length > 0;
+    if (!foundationsExists) {
+      console.log('  ℹ️  No foundations directory found - using default approach');
+      return context;
+    }
+
+    console.log('  📚 Found foundations directory, reading documents...');
+
+    // Look for Universal Taxonomy documents
+    const taxonomyPath = join(foundationsPath, 'Universal Taxonomy');
+    try {
+      const taxonomyFiles = await listDir(taxonomyPath);
+      
+      // Read the white paper if it exists
+      const whitePaper = taxonomyFiles.find(f => f.toLowerCase().includes('white paper') && f.endsWith('.pdf'));
+      if (whitePaper) {
+        const whitePaperContent = await readText(join(taxonomyPath, whitePaper));
+        if (whitePaperContent) {
+          context.universalTaxonomy = whitePaperContent.substring(0, 8000); // First ~8k chars for context
+          console.log('  ✅ Integrated Universal Taxonomy white paper');
+        }
+      }
+
+      // Read the ROSE framework if it exists
+      const roseDocument = taxonomyFiles.find(f => f.toLowerCase().includes('rose') && f.endsWith('.pdf'));
+      if (roseDocument) {
+        const roseContent = await readText(join(taxonomyPath, roseDocument));
+        if (roseContent) {
+          context.roseFramework = roseContent.substring(0, 4000); // First ~4k chars
+          console.log('  ✅ Integrated ROSE framework map');
+        }
+      }
+
+      // Read the taxonomy matrix TSV if it exists
+      const matrixFile = taxonomyFiles.find(f => f.toLowerCase().includes('matrix') && f.endsWith('.tsv'));
+      if (matrixFile) {
+        const matrixContent = await readText(join(taxonomyPath, matrixFile));
+        if (matrixContent) {
+          context.customDocuments.push(`UNIVERSAL TAXONOMY MATRIX:\n${matrixContent}`);
+          console.log('  ✅ Integrated Universal Taxonomy language matrix');
+        }
+      }
+    } catch {
+      // Universal Taxonomy folder doesn't exist, that's fine
+    }
+
+    // Read any other foundational documents
+    const allFoundationFiles = await listDir(foundationsPath);
+    for (const item of allFoundationFiles) {
+      if (item !== 'Universal Taxonomy' && !item.startsWith('.')) {
+        try {
+          const itemPath = join(foundationsPath, item);
+          const itemContent = await readText(itemPath);
+          if (itemContent) {
+            context.customDocuments.push(`${item}:\n${itemContent.substring(0, 2000)}`);
+            console.log(`  ✅ Integrated ${item}`);
+          }
+        } catch {
+          // Skip files we can't read
+        }
+      }
+    }
+
+    context.isEmpty = !context.universalTaxonomy && !context.roseFramework && context.customDocuments.length === 0;
+    
+    if (!context.isEmpty) {
+      console.log(`  🎯 Foundational context loaded - this node will be guided by these principles`);
+    }
+
+  } catch (error) {
+    console.log('  ⚠️  Could not read foundations directory:', error instanceof Error ? error.message : 'Unknown error');
+  }
+
+  return context;
+}
+
+function buildFoundationalGuidance(context: FoundationalContext): string {
+  if (context.isEmpty) {
+    return '';
+  }
+
+  let guidance = '\n\n=== FOUNDATIONAL CONTEXT ===\n';
+  guidance += 'This Utopia node operates according to specific foundational principles:\n\n';
+
+  if (context.universalTaxonomy) {
+    guidance += '🧠 UNIVERSAL TAXONOMY FRAMEWORK:\n';
+    guidance += 'This node uses a cross-disciplinary approach integrating physics, mythology, psychology, and systems thinking. ';
+    guidance += 'Content should reflect the harmonic progression from binary polarity (Yang/Yin) through elemental forces ';
+    guidance += '(Fire, Air, Earth, Water, Energy/Life) to social impact sectors. All topics should be categorized ';
+    guidance += 'within the Physical/Environmental, Social/Emotional, and Systemic/Mental dimensions.\n\n';
+  }
+
+  if (context.roseFramework) {
+    guidance += '🌹 ROSE FRAMEWORK (Regenerative Operating System Experience):\n';
+    guidance += 'Topics should align with harmonically organized impact sectors spanning Environmental (Water, Air, Fire, Earth, Life), ';
+    guidance += 'Social (Communications, Education, Gender, Health, Vision, Arts), and Systemic ';
+    guidance += '(Governance, Economics, Organization, Justice, Sciences, Innovation, Spirituality, Mystery) dimensions.\n\n';
+  }
+
+  if (context.customDocuments.length > 0) {
+    guidance += '📄 ADDITIONAL FOUNDATIONAL DOCUMENTS:\n';
+    for (const doc of context.customDocuments.slice(0, 3)) { // Limit to avoid overwhelming context
+      guidance += `${doc}\n\n`;
+    }
+  }
+
+  guidance += 'INTEGRATION REQUIREMENT: All content generation must honor these foundational principles. ';
+  guidance += 'Topics should be selected and framed through this philosophical lens, using the taxonomic structure ';
+  guidance += 'to ensure coherent, harmonic organization of global challenges and solutions.\n';
+  guidance += '=== END FOUNDATIONAL CONTEXT ===\n\n';
+
+  return guidance;
 }
 
 async function generateResearchReports(
   cwd: string,
   client: SimpleOpenAIClient,
   modelName: string,
-  iteration: number
+  iteration: number,
 ) {
   // Get existing topics to research
   const topicsPath = join(cwd, 'topics');
@@ -534,7 +757,8 @@ async function generateResearchReports(
 
   for (const topicSlug of topicDirs.slice(0, 2)) {
     // Process 2 topics per cycle to avoid overwhelming
-    const researchPrompt = `Generate a comprehensive research report for the ${topicSlug} topic. Include:
+    const researchPrompt =
+      `Generate a comprehensive research report for the ${topicSlug} topic. Include:
 
 1. Current global statistics and data
 2. Key organizations and initiatives currently working on this
@@ -557,13 +781,21 @@ Make it thorough, well-researched, and actionable. Focus on data-driven insights
           },
           { role: 'user', content: researchPrompt },
         ],
-        modelName
+        modelName,
       );
 
-      const reportPath = join(cwd, 'topics', topicSlug, 'reports', `deep-research-${iteration}.md`);
-      const reportContent = `# Deep Research Report - ${topicSlug
-        .replace(/-/g, ' ')
-        .replace(/\b\w/g, (l: string) => l.toUpperCase())}
+      const reportPath = join(
+        cwd,
+        'topics',
+        topicSlug,
+        'reports',
+        `deep-research-${iteration}.md`,
+      );
+      const reportContent = `# Deep Research Report - ${
+        topicSlug
+          .replace(/-/g, ' ')
+          .replace(/\b\w/g, (l: string) => l.toUpperCase())
+      }
 
 **Report #**: ${iteration}
 **Generated**: ${new Date().toISOString()}
@@ -578,13 +810,21 @@ ${research}
       await writeText(reportPath, reportContent);
       console.log(`  📄 Generated research report: ${reportPath}`);
     } catch (error) {
-      console.error(`  ❌ Failed to generate research for ${topicSlug}:`, error);
+      console.error(
+        `  ❌ Failed to generate research for ${topicSlug}:`,
+        error,
+      );
     }
   }
 }
 
-async function exploreTrustNetwork(cwd: string, client: SimpleOpenAIClient, modelName: string) {
-  const trustPrompt = `Identify 10 highly trusted organizations, research institutions, and initiatives working on global challenges like climate action, digital rights, and health equity. For each, provide:
+async function exploreTrustNetwork(
+  cwd: string,
+  client: SimpleOpenAIClient,
+  modelName: string,
+) {
+  const trustPrompt =
+    `Identify 10 highly trusted organizations, research institutions, and initiatives working on global challenges like climate action, digital rights, and health equity. For each, provide:
 
 1. Organization name and website
 2. Trust score (0.0-1.0) based on credibility, impact, and transparency
@@ -604,7 +844,7 @@ Format as YAML for trust/known_nodes.yaml`;
         },
         { role: 'user', content: trustPrompt },
       ],
-      modelName
+      modelName,
     );
 
     // Parse and append to existing trust network
@@ -623,7 +863,11 @@ status: active_discovery
 *Generated by utopian trust network exploration*
 `;
 
-    const expandedTrustFile = join(cwd, 'trust', `expanded-network-${Date.now()}.yaml`);
+    const expandedTrustFile = join(
+      cwd,
+      'trust',
+      `expanded-network-${Date.now()}.yaml`,
+    );
     await writeText(expandedTrustFile, expandedTrustContent);
     console.log(`  🕸️  Expanded trust network: ${expandedTrustFile}`);
   } catch (error) {
@@ -635,9 +879,10 @@ async function discoverNewTopics(
   cwd: string,
   client: SimpleOpenAIClient,
   modelName: string,
-  iteration: number
+  iteration: number,
 ) {
-  const discoveryPrompt = `Based on current global developments in 2024-2025, identify 2 emerging critical challenges that need urgent attention but aren't widely discussed yet. Consider:
+  const discoveryPrompt =
+    `Based on current global developments in 2024-2025, identify 2 emerging critical challenges that need urgent attention but aren't widely discussed yet. Consider:
 
 1. Technological disruptions and their societal impact
 2. Environmental tipping points and cascading effects
@@ -664,7 +909,7 @@ Format as JSON with topic details.`;
         },
         { role: 'user', content: discoveryPrompt },
       ],
-      modelName
+      modelName,
     );
 
     // Create directory for discovered topics
@@ -700,10 +945,11 @@ ${newTopics}
 async function synthesizeExistingContent(
   cwd: string,
   client: SimpleOpenAIClient,
-  modelName: string
+  modelName: string,
 ) {
   // Read existing reports and synthesize insights
-  const synthesisPrompt = `Analyze all existing content in this Utopia node and create a synthesis report that:
+  const synthesisPrompt =
+    `Analyze all existing content in this Utopia node and create a synthesis report that:
 
 1. Identifies common themes and interconnections between topics
 2. Highlights gaps that need more attention
@@ -723,7 +969,7 @@ Focus on creating actionable insights that connect different challenge areas.`;
         },
         { role: 'user', content: synthesisPrompt },
       ],
-      modelName
+      modelName,
     );
 
     const synthesisFile = join(cwd, 'reports', `synthesis-${Date.now()}.md`);
@@ -753,14 +999,182 @@ Based on this synthesis, the following actions are recommended for maximum impac
   }
 }
 
+async function generateContentImages(
+  cwd: string,
+  client: SimpleOpenAIClient,
+  modelName: string,
+  mfluxAvailable: boolean,
+) {
+  if (!mfluxAvailable) {
+    console.log(
+      '  ⏭️  Skipping image generation (mflux-generate not available)',
+    );
+    return;
+  }
+
+  console.log('  🤖 Generating contextual image prompts with AI...');
+  
+  // Get existing content to inform image generation
+  const existingContent = await gatherContentForImageGeneration(cwd);
+  
+  const imagePrompts = await generateImagePrompts(
+    client,
+    modelName,
+    existingContent,
+  );
+
+  await ensureDir(join(cwd, 'media', 'images'));
+
+  for (const imageSpec of imagePrompts) {
+    try {
+      const fullPath = join(cwd, imageSpec.path);
+      console.log(`  🎨 Generating image: ${imageSpec.name}`);
+      console.log(`      Using prompt: "${imageSpec.prompt}"`);
+
+      await generateImage(imageSpec.prompt, fullPath, {
+        width: 1024,
+        height: 1024,
+        steps: 28,
+        quantize: 8,
+        cwd,
+      });
+
+      console.log(`  ✅ Generated: ${imageSpec.path}`);
+    } catch (error) {
+      console.error(`  ❌ Failed to generate ${imageSpec.name}:`, error);
+    }
+  }
+}
+
+async function gatherContentForImageGeneration(cwd: string): Promise<string> {
+  const content: string[] = [];
+  
+  try {
+    // Get topic overviews
+    const topicsPath = join(cwd, 'topics');
+    const topicDirs = await listDir(topicsPath);
+    
+    for (const topicDir of topicDirs.slice(0, 3)) { // Limit to avoid overwhelming context
+      const overviewPath = join(topicsPath, topicDir, 'docs', 'overview.md');
+      const overview = await readText(overviewPath);
+      if (overview) {
+        content.push(`=== ${topicDir.toUpperCase()} ===`);
+        content.push(overview.substring(0, 500)); // First 500 chars
+      }
+    }
+    
+    // Get recent reports
+    const reportsPath = join(cwd, 'reports');
+    const reports = await listDir(reportsPath);
+    for (const reportFile of reports.slice(-2)) { // Last 2 reports
+      if (reportFile.endsWith('.md')) {
+        const report = await readText(join(reportsPath, reportFile));
+        if (report) {
+          content.push(`=== REPORT: ${reportFile} ===`);
+          content.push(report.substring(0, 300)); // First 300 chars
+        }
+      }
+    }
+  } catch (_error) {
+    console.log('  ⚠️  Could not gather existing content, using minimal context');
+    content.push('Global challenges requiring urgent action and collaboration');
+  }
+  
+  return content.join('\n\n');
+}
+
+async function generateImagePrompts(
+  client: SimpleOpenAIClient,
+  modelName: string,
+  contentContext: string,
+): Promise<Array<{ name: string; prompt: string; path: string }>> {
+  const promptGenerationPrompt = `Based on the following content about global challenges and solutions, generate 4-6 diverse, compelling image prompts for visual content creation.
+
+CONTENT CONTEXT:
+${contentContext}
+
+REQUIREMENTS:
+- Create prompts that will generate powerful, inspiring visuals
+- Focus on hope, action, collaboration, and positive change
+- Include diverse perspectives and global representation  
+- Mix abstract concepts with concrete imagery
+- Ensure prompts work well for presentations and social media
+- Each prompt should be 15-25 words for optimal image generation
+
+OUTPUT FORMAT (JSON):
+[
+  {
+    "name": "descriptive-filename",
+    "prompt": "detailed visual description optimized for image generation",
+    "path": "media/images/descriptive-filename.png"
+  }
+]
+
+STYLE GUIDELINES:
+- Use words like: photorealistic, high quality, professional, inspiring, hopeful
+- Include lighting: warm lighting, golden hour, soft natural light
+- Specify composition: wide shot, close-up, aerial view, etc.
+- Add mood: uplifting, collaborative, determined, peaceful
+- Mention colors when relevant: vibrant, earth tones, blue and green
+
+Generate images that will make people feel motivated to take action on global challenges.`;
+
+  try {
+    const response = await client.chat([
+      {
+        role: 'system',
+        content: 'You are an expert prompt engineer specializing in creating compelling image generation prompts that inspire action on global challenges.',
+      },
+      { role: 'user', content: promptGenerationPrompt },
+    ], modelName);
+
+    // Try to parse JSON from response
+    const jsonMatch = response.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      const imagePrompts = JSON.parse(jsonMatch[0]);
+      console.log(`  ✅ Generated ${imagePrompts.length} contextual image prompts:`);
+      
+      // Display the generated prompts
+      imagePrompts.forEach((prompt: { name: string; prompt: string }, index: number) => {
+        console.log(`    ${index + 1}. 🎨 ${prompt.name}`);
+        console.log(`       📝 "${prompt.prompt}"`);
+      });
+      
+      return imagePrompts;
+    }
+  } catch (error) {
+    console.error('  ⚠️  Failed to generate custom prompts, using fallback:', error);
+  }
+
+  // Fallback prompts if LLM generation fails
+  return [
+    {
+      name: 'global-collaboration',
+      prompt: 'diverse hands reaching together forming circle, unity and cooperation, warm golden lighting, hopeful and inspiring, photorealistic, high quality',
+      path: 'media/images/global-collaboration.png',
+    },
+    {
+      name: 'sustainable-future',
+      prompt: 'clean energy landscape with solar panels wind turbines, bright blue sky, green technology, sustainable development, optimistic mood, professional photography',
+      path: 'media/images/sustainable-future.png',
+    },
+    {
+      name: 'digital-equity',
+      prompt: 'interconnected network of diverse people using technology, digital inclusion, connectivity symbols, modern aesthetic, blue and green colors, inspiring',
+      path: 'media/images/digital-equity.png',
+    },
+  ];
+}
+
 async function generateMediaContent(
   cwd: string,
   client: SimpleOpenAIClient,
   modelName: string,
-  iteration: number
+  iteration: number,
 ) {
   // Generate updated slide decks and video scripts
-  const mediaPrompt = `Create compelling presentation and video content for global challenge solutions. Generate:
+  const mediaPrompt =
+    `Create compelling presentation and video content for global challenge solutions. Generate:
 
 1. A powerful 10-slide presentation outline for one critical topic
 2. A detailed video script (10-15 minutes) that could go viral
@@ -779,10 +1193,14 @@ Make it inspiring, data-driven, and focused on concrete actions people can take 
         },
         { role: 'user', content: mediaPrompt },
       ],
-      modelName
+      modelName,
     );
 
-    const mediaFile = join(cwd, 'media', `content-${iteration}-${Date.now()}.md`);
+    const mediaFile = join(
+      cwd,
+      'media',
+      `content-${iteration}-${Date.now()}.md`,
+    );
     const mediaContentFormatted = `# Media Content Package - Cycle ${iteration}
 
 **Generated**: ${new Date().toISOString()}
@@ -790,11 +1208,19 @@ Make it inspiring, data-driven, and focused on concrete actions people can take 
 
 ${mediaContent}
 
+## Available Images
+If mflux-generate is available, the following images can be used in presentations and content:
+- \`media/images/climate-action-hero.png\` - Renewable energy landscape
+- \`media/images/digital-rights-network.png\` - Digital privacy and rights visualization  
+- \`media/images/global-health-unity.png\` - Healthcare collaboration and equity
+- \`media/images/collaboration-network.png\` - Network and partnership visualization
+
 ## Production Notes
 - Optimize for viral sharing and engagement
 - Include clear calls-to-action at multiple points
 - Ensure accessibility with captions and transcripts
 - Create versions for different platforms and audiences
+- Use generated images to enhance visual appeal and engagement
 
 ---
 *Generated by utopian media generation cycle ${iteration}*

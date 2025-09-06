@@ -51,6 +51,8 @@ challenges like climate change, digital rights, and health equity. Each node:
 - 🕸️ **Builds trust networks** with other nodes and organizations
 - 📊 **Generates comprehensive reports** with data-driven insights
 - 🎬 **Creates media content** including presentations and video scripts
+- 🎨 **Generates images** automatically with mflux for visual content
+  (auto-setup)
 - 🔄 **Operates continuously** to discover new challenges and opportunities
 
 ## ✨ Features
@@ -71,14 +73,15 @@ challenges like climate change, digital rights, and health equity. Each node:
   collaborators
 - **Topic Discovery**: Identification of emerging critical challenges
 - **Media Creation**: Presentation slides (Marp-compatible) and video scripts
+- **Image Generation**: Automatic creation of contextual visuals using mflux
 - **Content Synthesis**: Cross-topic analysis and strategic insights
 
 ### 🔄 **Continuous Generation Engine**
 
-- Runs unlimited cycles of content creation and research
+- Runs fully automated cycles of content creation and research
 - Automatically discovers new topics and expands existing ones
 - Builds comprehensive knowledge bases over time
-- Creates actionable reports and media content
+- Creates actionable reports and media content without manual intervention
 
 ### 🤝 **Flexible AI Integration**
 
@@ -97,6 +100,8 @@ deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,
 ### Requirements
 
 - **Deno**: >= 2.x
+- **Python 3**: For automatic image generation (auto-installed in virtual
+  environment)
 - **Optional**: LM Studio for local AI models
 - **Optional**: OpenAI API key for GPT models
 
@@ -109,22 +114,18 @@ deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,
 deno task start
 
 # Use with specific AI model
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --model gpt-4
-
-# Skip human-in-the-loop confirmations
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --auto
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash mod.ts --model gpt-4
 
 # Use custom OpenAI-compatible endpoint
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms mod.ts --base https://your-api.com/v1 --model your-model
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash mod.ts --base https://your-api.com/v1 --model your-model
 ```
 
 ### Command Options
 
-| Option           | Description                     | Default       |
-| ---------------- | ------------------------------- | ------------- |
-| `--base <url>`   | OpenAI-compatible API base URL  | Auto-detected |
-| `--model <name>` | Model name to use               | Auto-detected |
-| `--auto`         | Skip human confirmation prompts | `false`       |
+| Option           | Description                    | Default       |
+| ---------------- | ------------------------------ | ------------- |
+| `--base <url>`   | OpenAI-compatible API base URL | Auto-detected |
+| `--model <name>` | Model name to use              | Auto-detected |
 
 ### AI Model Selection
 
@@ -177,6 +178,10 @@ utopia-node/
 │   └── global-health-equity/
 ├── reports/                   # Synthesis and analysis reports
 ├── media/                     # Generated presentations and scripts
+│   └── images/                # AI-generated visual content
+├── tmp/
+│   └── mflux/                 # Image generation environment
+│       └── .venv/             # Python virtual environment
 └── dist/                      # Compiled presentations
 ```
 
@@ -197,7 +202,7 @@ utopia-node/
 
 - **Larger models** (70B+) produce better research and insights
 - **Local models** provide privacy and cost control
-- Use `--auto` flag for unattended operation with any model
+- Agent runs automatically without manual intervention
 
 ## 🛠️ Development
 
