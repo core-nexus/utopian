@@ -11,7 +11,7 @@ tackle global challenges through AI-powered collaboration.**
 Run the Utopian CLI from any directory:
 
 ```bash
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash jsr:@utopian/utopian
 ```
 
 Or clone and run locally:
@@ -91,7 +91,7 @@ challenges like climate change, digital rights, and health equity. Each node:
 ### Direct Usage (Recommended)
 
 ```bash
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash jsr:@utopian/utopian
 ```
 
 ### Requirements
@@ -273,7 +273,7 @@ This project is licensed under the Apache License 2.0 - see the
 **Ready to build the future?** Start your Utopia node today:
 
 ```bash
-deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms https://deno.land/x/utopian/mod.ts
+deno run --allow-read=. --allow-write=. --allow-net --allow-env --allow-run=lms,python3,bash jsr:@utopian/utopian
 ```
 
 _Together, we can tackle global challenges through decentralized collaboration
