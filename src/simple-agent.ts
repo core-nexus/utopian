@@ -1135,7 +1135,7 @@ Generate images that will make people feel motivated to take action on global ch
       console.log(`  ✅ Generated ${imagePrompts.length} contextual image prompts:`);
       
       // Display the generated prompts
-      imagePrompts.forEach((prompt: any, index: number) => {
+      imagePrompts.forEach((prompt: { name: string; prompt: string }, index: number) => {
         console.log(`    ${index + 1}. 🎨 ${prompt.name}`);
         console.log(`       📝 "${prompt.prompt}"`);
       });

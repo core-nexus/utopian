@@ -6,13 +6,11 @@ Deno.test('AgentOptions type validation - valid options', () => {
     cwd: '/test/path',
     model: 'gpt-5',
     baseURL: 'https://api.openai.com/v1',
-    auto: true,
   };
 
   assertEquals(validOptions.cwd, '/test/path');
   assertEquals(validOptions.model, 'gpt-5');
   assertEquals(validOptions.baseURL, 'https://api.openai.com/v1');
-  assertEquals(validOptions.auto, true);
 });
 
 Deno.test('AgentOptions type validation - minimal options', () => {
@@ -23,7 +21,6 @@ Deno.test('AgentOptions type validation - minimal options', () => {
   assertEquals(minimalOptions.cwd, '/test/path');
   assertEquals(minimalOptions.model, undefined);
   assertEquals(minimalOptions.baseURL, undefined);
-  assertEquals(minimalOptions.auto, undefined);
 });
 
 Deno.test('Environment defaults should work with OpenAI key', () => {
