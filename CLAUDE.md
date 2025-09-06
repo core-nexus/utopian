@@ -22,5 +22,6 @@ these instructions:
 - Use Markdown formatting.
 - Start with a one-line summary.
 - If needed, add a blank line followed by bullet points beginning with `-`.
+- For PRs: ignore commits, just diff the branch against origin/main -- use `git diff origin/main HEAD -U500`
 
 ## Additional Guidance
