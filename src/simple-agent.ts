@@ -14,6 +14,13 @@ import {
 } from './tools/systemTools.ts';
 import { SYSTEM_PROMPT } from './prompts/system.ts';
 
+interface FoundationalContext {
+  universalTaxonomy?: string;
+  roseFramework?: string;
+  customDocuments: string[];
+  isEmpty: boolean;
+}
+
 export type AgentOptions = {
   cwd: string;
   model?: string;
@@ -30,6 +37,10 @@ export async function runSimpleAgent(opts: AgentOptions) {
     (Deno.env.get('OPENAI_API_KEY') ? 'gpt-5' : 'openai/gpt-oss-20b');
 
   const client = new SimpleOpenAIClient(baseURL);
+
+  // FIRST: Read and integrate foundations to inform everything
+  console.log('\n🧠 Reading foundational documents to understand this Utopia node\'s perspective...');
+  const foundationalContext = await readFoundationalDocuments(cwd);
 
   // Check for mflux-generate availability
   let mfluxAvailable = await checkMfluxAvailable(cwd);
@@ -71,15 +82,19 @@ export async function runSimpleAgent(opts: AgentOptions) {
   // Create the basic structure first
   await createBasicStructure(cwd);
 
-  // Generate AI-powered content for critical topics
+  // Generate AI-powered content for critical topics informed by foundations
+  const foundationalGuidance = buildFoundationalGuidance(foundationalContext);
+  
   const messages: ChatMessage[] = [
-    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'system', content: SYSTEM_PROMPT + foundationalGuidance },
     {
       role: 'user',
       content: `Project root: ${cwd}
 
 Context:
 ${contextSummary}
+
+${!foundationalContext.isEmpty ? 'IMPORTANT: This node has specific foundational principles that should guide everything. Honor the philosophical and organizational frameworks found in this node\'s foundations.' : ''}
 
 I need you to identify and create content for the 3 most critical global challenges that need immediate attention in 2024-2025. For each challenge, create:
 
@@ -593,6 +608,129 @@ async function continuousGeneration(
   );
 }
 
+async function readFoundationalDocuments(cwd: string): Promise<FoundationalContext> {
+  const foundationsPath = join(cwd, 'foundations');
+  const context: FoundationalContext = {
+    customDocuments: [],
+    isEmpty: true,
+  };
+
+  try {
+    // Check if foundations directory exists
+    const foundationsExists = (await listDir(foundationsPath)).length > 0;
+    if (!foundationsExists) {
+      console.log('  ℹ️  No foundations directory found - using default approach');
+      return context;
+    }
+
+    console.log('  📚 Found foundations directory, reading documents...');
+
+    // Look for Universal Taxonomy documents
+    const taxonomyPath = join(foundationsPath, 'Universal Taxonomy');
+    try {
+      const taxonomyFiles = await listDir(taxonomyPath);
+      
+      // Read the white paper if it exists
+      const whitePaper = taxonomyFiles.find(f => f.toLowerCase().includes('white paper') && f.endsWith('.pdf'));
+      if (whitePaper) {
+        const whitePaperContent = await readText(join(taxonomyPath, whitePaper));
+        if (whitePaperContent) {
+          context.universalTaxonomy = whitePaperContent.substring(0, 8000); // First ~8k chars for context
+          console.log('  ✅ Integrated Universal Taxonomy white paper');
+        }
+      }
+
+      // Read the ROSE framework if it exists
+      const roseDocument = taxonomyFiles.find(f => f.toLowerCase().includes('rose') && f.endsWith('.pdf'));
+      if (roseDocument) {
+        const roseContent = await readText(join(taxonomyPath, roseDocument));
+        if (roseContent) {
+          context.roseFramework = roseContent.substring(0, 4000); // First ~4k chars
+          console.log('  ✅ Integrated ROSE framework map');
+        }
+      }
+
+      // Read the taxonomy matrix TSV if it exists
+      const matrixFile = taxonomyFiles.find(f => f.toLowerCase().includes('matrix') && f.endsWith('.tsv'));
+      if (matrixFile) {
+        const matrixContent = await readText(join(taxonomyPath, matrixFile));
+        if (matrixContent) {
+          context.customDocuments.push(`UNIVERSAL TAXONOMY MATRIX:\n${matrixContent}`);
+          console.log('  ✅ Integrated Universal Taxonomy language matrix');
+        }
+      }
+    } catch {
+      // Universal Taxonomy folder doesn't exist, that's fine
+    }
+
+    // Read any other foundational documents
+    const allFoundationFiles = await listDir(foundationsPath);
+    for (const item of allFoundationFiles) {
+      if (item !== 'Universal Taxonomy' && !item.startsWith('.')) {
+        try {
+          const itemPath = join(foundationsPath, item);
+          const itemContent = await readText(itemPath);
+          if (itemContent) {
+            context.customDocuments.push(`${item}:\n${itemContent.substring(0, 2000)}`);
+            console.log(`  ✅ Integrated ${item}`);
+          }
+        } catch {
+          // Skip files we can't read
+        }
+      }
+    }
+
+    context.isEmpty = !context.universalTaxonomy && !context.roseFramework && context.customDocuments.length === 0;
+    
+    if (!context.isEmpty) {
+      console.log(`  🎯 Foundational context loaded - this node will be guided by these principles`);
+    }
+
+  } catch (error) {
+    console.log('  ⚠️  Could not read foundations directory:', error instanceof Error ? error.message : 'Unknown error');
+  }
+
+  return context;
+}
+
+function buildFoundationalGuidance(context: FoundationalContext): string {
+  if (context.isEmpty) {
+    return '';
+  }
+
+  let guidance = '\n\n=== FOUNDATIONAL CONTEXT ===\n';
+  guidance += 'This Utopia node operates according to specific foundational principles:\n\n';
+
+  if (context.universalTaxonomy) {
+    guidance += '🧠 UNIVERSAL TAXONOMY FRAMEWORK:\n';
+    guidance += 'This node uses a cross-disciplinary approach integrating physics, mythology, psychology, and systems thinking. ';
+    guidance += 'Content should reflect the harmonic progression from binary polarity (Yang/Yin) through elemental forces ';
+    guidance += '(Fire, Air, Earth, Water, Energy/Life) to social impact sectors. All topics should be categorized ';
+    guidance += 'within the Physical/Environmental, Social/Emotional, and Systemic/Mental dimensions.\n\n';
+  }
+
+  if (context.roseFramework) {
+    guidance += '🌹 ROSE FRAMEWORK (Regenerative Operating System Experience):\n';
+    guidance += 'Topics should align with harmonically organized impact sectors spanning Environmental (Water, Air, Fire, Earth, Life), ';
+    guidance += 'Social (Communications, Education, Gender, Health, Vision, Arts), and Systemic ';
+    guidance += '(Governance, Economics, Organization, Justice, Sciences, Innovation, Spirituality, Mystery) dimensions.\n\n';
+  }
+
+  if (context.customDocuments.length > 0) {
+    guidance += '📄 ADDITIONAL FOUNDATIONAL DOCUMENTS:\n';
+    for (const doc of context.customDocuments.slice(0, 3)) { // Limit to avoid overwhelming context
+      guidance += `${doc}\n\n`;
+    }
+  }
+
+  guidance += 'INTEGRATION REQUIREMENT: All content generation must honor these foundational principles. ';
+  guidance += 'Topics should be selected and framed through this philosophical lens, using the taxonomic structure ';
+  guidance += 'to ensure coherent, harmonic organization of global challenges and solutions.\n';
+  guidance += '=== END FOUNDATIONAL CONTEXT ===\n\n';
+
+  return guidance;
+}
+
 async function generateResearchReports(
   cwd: string,
   client: SimpleOpenAIClient,
@@ -891,6 +1029,7 @@ async function generateContentImages(
     try {
       const fullPath = join(cwd, imageSpec.path);
       console.log(`  🎨 Generating image: ${imageSpec.name}`);
+      console.log(`      Using prompt: "${imageSpec.prompt}"`);
 
       await generateImage(imageSpec.prompt, fullPath, {
         width: 1024,
@@ -993,7 +1132,14 @@ Generate images that will make people feel motivated to take action on global ch
     const jsonMatch = response.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
       const imagePrompts = JSON.parse(jsonMatch[0]);
-      console.log(`  ✅ Generated ${imagePrompts.length} contextual image prompts`);
+      console.log(`  ✅ Generated ${imagePrompts.length} contextual image prompts:`);
+      
+      // Display the generated prompts
+      imagePrompts.forEach((prompt: any, index: number) => {
+        console.log(`    ${index + 1}. 🎨 ${prompt.name}`);
+        console.log(`       📝 "${prompt.prompt}"`);
+      });
+      
       return imagePrompts;
     }
   } catch (error) {
