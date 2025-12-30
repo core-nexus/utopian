@@ -3,6 +3,7 @@ export { type AgentOptions, runAgent } from './agent.ts';
 export * from './tools/fsTools.ts';
 export * from './tools/systemTools.ts';
 export { SYSTEM_PROMPT } from './prompts/system.ts';
+export { generateGraph, type GraphData } from './core/graph.ts';
 
 // Legacy exports (if needed)
 // export { LangGraphClient } from './langgraph-client';
