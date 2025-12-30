@@ -1,5 +1,6 @@
 import { dirname, join } from 'jsr:@std/path@1.1.2';
 import { parse, stringify } from 'jsr:@std/yaml@1.0.9';
+import { UtopiaManifestSchema, type UtopiaManifest } from '../core/manifest.ts';
 
 export async function ensureDir(p: string) {
   await Deno.mkdir(p, { recursive: true });
@@ -48,4 +49,16 @@ export function cwdHasRepo(cwd: string) {
     listDir(join(cwd, 'foundations')),
     listDir(join(cwd, 'trust')),
   ]).then(([g, f, t]) => g.length + f.length + t.length > 0);
+}
+
+export async function readManifest(cwd: string): Promise<UtopiaManifest | undefined> {
+  const p = join(cwd, 'utopia.yaml');
+  const obj = await readYaml(p);
+  if (!obj) return undefined;
+  const result = UtopiaManifestSchema.safeParse(obj);
+  if (!result.success) {
+    console.error('Invalid utopia.yaml:', result.error);
+    return undefined;
+  }
+  return result.data;
 }
